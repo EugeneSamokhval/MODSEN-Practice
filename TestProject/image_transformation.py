@@ -28,4 +28,32 @@ def rotate(image, center_of_rotation=None, angle=None):
     return cv2.warpAffine(image, M, (width, height))
 
 
+def tilt(image, angle=None):
+    if not angle:
+        angle = 90
+    (h, w) = image.shape[:2]
+
+    center = (w / 2, h / 2)
+
+    M = cv2.getRotationMatrix2D(center, angle, 1.0)
+
+    tilted = cv2.warpAffine(image, M, (w, h))
+    return tilted
+
+
+def shift(image, x_shift, y_shift):
+    M = np.float32([[1, 0, x_shift], [0, 1, y_shift]])
+    shifted = cv2.warpAffine(image, M, (image.shape[1], image.shape[0]))
+    return shifted
+
+
+image = cv2.imread('TestProject\\test_art.png', cv2.IMREAD_ANYCOLOR)
+if image is None:
+    print(f"Failed to load image")
+else:
+    new_img = tilt(image, 50)
+    cv2.imshow('Edited Image', new_img)
+    cv2.waitKey(0)
+
+
 fuct_list = (resize, cutout, flip, rotate)
