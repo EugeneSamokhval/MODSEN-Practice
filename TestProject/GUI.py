@@ -5,7 +5,7 @@ from kivymd.uix.screen import MDScreen
 from kivymd.uix.label import MDLabel
 from kivymd.uix.gridlayout import MDGridLayout
 from kivymd.uix.stacklayout import MDStackLayout
-from kivymd.uix.tab import MDTabs
+from kivymd.uix.bottomnavigation import MDBottomNavigation, MDBottomNavigationItem
 from kivymd.uix.selectioncontrol import MDCheckbox
 from kivymd.uix.textfield import MDTextField
 from kivymd.app import MDApp
@@ -17,6 +17,7 @@ from kivy.metrics import dp
 from kivy.core.window import Window
 from kivymd.uix.button import MDRectangleFlatButton, MDFloatingActionButton
 import image_transformation
+import image_posteffects
 
 
 class App(MDApp):
@@ -25,7 +26,16 @@ class App(MDApp):
         self.theme_cls.primary_palette = "Gray"
         Window.size = (1920, 1080)
         Window.fullscreen = "auto"
-        return MainScreen()
+        bottom_navigation_layout = MDBottomNavigation(
+            selected_color_background="orange", text_color_active="lightgrey")
+        # bottom navigation tab description
+        main_window_container = MDBottomNavigationItem()
+        main_window_container.text = "Augmentation"
+        main_window_container.icon = 'image-edit-outline'
+        main_window_container.md_bg_color = '#3F3F3F'
+        main_window_container.add_widget(MainScreen())
+        bottom_navigation_layout.add_widget(main_window_container)
+        return bottom_navigation_layout
 
 
 def transform_items_constructor(widgets: list, columns=3):
@@ -38,6 +48,11 @@ def transform_items_constructor(widgets: list, columns=3):
     for widget in widgets:
         result.add_widget(widget)
     return result
+
+
+class ImageGenerationScreen(MDScreen):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
 
 class MainScreen(MDScreen):
@@ -59,15 +74,15 @@ class MainScreen(MDScreen):
         main_window_layout.spacing = 50
         # Transformations list layout
         transform_layout = MDGridLayout(
-            cols=1, size_hint=(0.2, 0.6), padding=20)
+            cols=1, size_hint=(0.2, 0.7), padding=20)
         transform_layout.md_bg_color = "#1C1C1C"
         transform_layout.spacing = 10
         # Checkboxes container
         self.checkboxes = dict()
-        check_list = [MDCheckbox(size_hint=(0.1, 0.1)) for i in range(4)]
+        check_list = [MDCheckbox(size_hint=(0.1, 0.1)) for i in range(9)]
         # Resize item
-        self.checkboxes[check_list[0]] = [MDTextField(hint_text='Input width', size_hint=(
-            0.35, 0.08)), MDTextField(hint_text='Input height', size_hint=(0.35, 0.1))]
+        self.checkboxes[check_list[0]] = [MDTextField(hint_text='width', size_hint=(
+            0.35, 0.08)), MDTextField(hint_text='height', size_hint=(0.35, 0.1))]
         resize_widget = transform_items_constructor([
             check_list[0],
             MDLabel(text="Resize", size_hint=(0.15, 0.1)),
@@ -76,9 +91,9 @@ class MainScreen(MDScreen):
         ], columns=4)
         # cutout item
         self.checkboxes[check_list[1]] = [MDTextField(
-            hint_text='Input top left point [x, y]', size_hint=(0.35, 0.1)),
+            hint_text='top left point [x, y]', size_hint=(0.35, 0.1)),
             MDTextField(
-                hint_text='Input bottom right point [x, y]', size_hint=(0.35, 0.1))]
+                hint_text='bottom right point [x, y]', size_hint=(0.35, 0.1))]
         cutout_widget = transform_items_constructor([
             check_list[1],
             MDLabel(text="Cut", size_hint=(0.15, 0.1)),
@@ -95,15 +110,64 @@ class MainScreen(MDScreen):
         ])
         # rotate item
         self.checkboxes[check_list[3]] = [MDTextField(
-            hint_text='Input center [x, y]', size_hint=(0.35, 0.1)),
+            hint_text='center [x, y]', size_hint=(0.35, 0.1)),
             MDTextField(
-                hint_text='Input angle of rotation', size_hint=(0.35, 0.1)),]
+                hint_text='angle of rotation', size_hint=(0.35, 0.1)),]
         rotate_widget = transform_items_constructor([
             check_list[3],
             MDLabel(text="Rotate", size_hint=(0.15, 0.1)),
             self.checkboxes.get(check_list[3])[0],
             self.checkboxes.get(check_list[3])[1],
         ], columns=4)
+        # shift image
+        self.checkboxes[check_list[4]] = [MDTextField(
+            hint_text='shift horizontal', size_hint=(0.35, 0.1)),
+            MDTextField(
+            hint_text='shift vertical', size_hint=(0.35, 0.1)),
+        ]
+        shift_widget = transform_items_constructor([
+            check_list[4],
+            MDLabel(text="Shift", size_hint=(0.15, 0.1)),
+            self.checkboxes.get(check_list[4])[0],
+            self.checkboxes.get(check_list[4])[1]
+        ], columns=4)
+        # change brightness
+        self.checkboxes[check_list[5]] = [MDTextField(
+            hint_text='scale of changes', size_hint=(0.70, 0.1)),
+        ]
+        brightness_widget = transform_items_constructor([
+            check_list[5],
+            MDLabel(text="Brightness", size_hint=(0.15, 0.1)),
+            self.checkboxes.get(check_list[5])[0],
+        ])
+        # change contrast
+        self.checkboxes[check_list[6]] = [MDTextField(
+            hint_text='scale of changes', size_hint=(0.70, 0.1)),
+        ]
+        contrast_widget = transform_items_constructor([
+            check_list[6],
+            MDLabel(text="Contrast", size_hint=(0.15, 0.1)),
+            self.checkboxes.get(check_list[6])[0],
+        ])
+        # add noise
+        self.checkboxes[check_list[7]] = [MDTextField(
+            hint_text='scale of changes', size_hint=(0.70, 0.1)),
+        ]
+        noise_widget = transform_items_constructor([
+            check_list[7],
+            MDLabel(text="Noise", size_hint=(0.15, 0.1)),
+            self.checkboxes.get(check_list[7])[0],
+        ])
+        # change saturation
+        self.checkboxes[check_list[8]] = [MDTextField(
+            hint_text='scale of changes', size_hint=(0.70, 0.1)),
+        ]
+        saturation_widget = transform_items_constructor([
+            check_list[8],
+            MDLabel(text="Saturation", size_hint=(0.15, 0.1)),
+            self.checkboxes.get(check_list[8])[0],
+        ])
+
         # Table of images and their's attributes
         self.image_table = MDDataTable(
             use_pagination=True,
@@ -133,8 +197,6 @@ class MainScreen(MDScreen):
             ext=[],
             preview=True,
         )
-        # Open Path to Input Label
-
         # Open Path to Input button
         self.input_button = MDRectangleFlatButton()
         self.input_button.padding = 20
@@ -161,6 +223,11 @@ class MainScreen(MDScreen):
         transform_layout.add_widget(cutout_widget)
         transform_layout.add_widget(flip_widget)
         transform_layout.add_widget(rotate_widget)
+        transform_layout.add_widget(shift_widget)
+        transform_layout.add_widget(brightness_widget)
+        transform_layout.add_widget(contrast_widget)
+        transform_layout.add_widget(noise_widget)
+        transform_layout.add_widget(saturation_widget)
         main_window_layout.add_widget(self.image_table)
         main_window_layout.add_widget(transform_layout)
         main_window_layout.add_widget(self.input_button)
@@ -184,42 +251,48 @@ class MainScreen(MDScreen):
                                  column_index / table_data.total_col_headings)
                 self.my_selections.append(table_data.row_data[data_index][0])
 
+    def calcute_to_do(self):
+        to_do_list = []
+        all_functions = image_transformation.funct_list + image_posteffects.funct_list
+        for func, key in zip(all_functions, self.checkboxes.keys()):
+            if key.active:
+                func_inputs = []
+                for textfield in self.checkboxes.get(key):
+                    if ']' in textfield.text:
+                        func_inputs.append([int(entry) for entry in textfield.text.strip(
+                            ']').strip('[').split(', ')])
+                    else:
+                        func_inputs.append(int(textfield.text))
+                to_do_list.append([func, func_inputs])
+        return to_do_list
+
     def start_processing(self):
-        # try:
-        if self.images_load_path and self.images_unload_path:
-            to_do_list = []
-            for func, key in zip(image_transformation.fuct_list, self.checkboxes.keys()):
-                if key.active:
-                    func_inputs = []
-                    for textfield in self.checkboxes.get(key):
-                        if ']' in textfield.text:
-                            func_inputs.append([int(entry) for entry in textfield.text.strip(
-                                ']').strip('[').split(', ')])
-                        else:
-                            func_inputs.append(int(textfield.text))
-                    to_do_list.append([func, func_inputs])
-            images = images_collecting.load_images(self.images_load_path)
-            needed_images = []
-            checked_names = [self.image_table.row_data[int(i)][1]
-                             for i in self.my_selections]
-            for image in images:
-                for name in checked_names:
-                    if name == image[1].split('\\')[-1]:
-                        needed_images.append(image)
-                        break
-            result = []
-            for image in needed_images:
-                temp_image = image[0]
-                for func in to_do_list:
-                    temp_image = func[0](temp_image, *func[1])
-                result.append([temp_image, image[1].split('\\')[-1]])
-            images_collecting.save_images(
-                result, PATH=self.images_unload_path)
-            toast('New images are saved at ' + self.images_unload_path)
-        else:
-            toast('You need to choose upload and import paths')
-        # except:
-        #    toast('Error while converting images. Check the entered data for correctness.')
+        try:
+            if self.images_load_path and self.images_unload_path:
+                to_do_list = self.calcute_to_do()
+                images = images_collecting.load_images(self.images_load_path)
+                needed_images = []
+                checked_names = [self.image_table.row_data[int(i)][1]
+                                 for i in self.my_selections]
+                for image in images:
+                    for name in checked_names:
+                        if name == image[1].split('\\')[-1]:
+                            needed_images.append(image)
+                            break
+                result = []
+                for image in needed_images:
+                    temp_image = image[0]
+                    for func in to_do_list:
+                        temp_image = func[0](temp_image, *func[1])
+                    result.append([temp_image, image[1].split('\\')[-1]])
+                images_collecting.save_images(
+                    result, PATH=self.images_unload_path)
+                toast('New images are saved at ' + self.images_unload_path)
+            else:
+                toast('You need to choose upload and import paths')
+        except:
+            toast(
+                'Error while converting images. Check the entered data for correctness.')
 
     def load_images(self, path):
         new_images = images_collecting.read_images_attributes(path)

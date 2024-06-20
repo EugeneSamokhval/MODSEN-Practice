@@ -26,3 +26,7 @@ def noise(image, noise_scale):
 def contrast(image, change_scale):
     adjusted_image = cv2.convertScaleAbs(image, alpha=change_scale)
     return adjusted_image
+
+
+# Funtions postioning is needed to be with the same lineup as in self.switches variable of interface
+funct_list = [brightness, contrast, noise, saturation]

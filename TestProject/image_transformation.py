@@ -47,13 +47,4 @@ def shift(image, x_shift, y_shift):
     return shifted
 
 
-image = cv2.imread('TestProject\\test_art.png', cv2.IMREAD_ANYCOLOR)
-if image is None:
-    print(f"Failed to load image")
-else:
-    new_img = tilt(image, 50)
-    cv2.imshow('Edited Image', new_img)
-    cv2.waitKey(0)
-
-
-fuct_list = (resize, cutout, flip, rotate)
+funct_list = [resize, cutout, flip, rotate, shift]
