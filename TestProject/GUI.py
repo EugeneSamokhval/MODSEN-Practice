@@ -33,6 +33,7 @@ class App(MDApp):
         main_window_container.text = "Augmentation"
         main_window_container.icon = 'image-edit-outline'
         main_window_container.md_bg_color = '#3F3F3F'
+        image_generation_container = ""
         main_window_container.add_widget(MainScreen())
         bottom_navigation_layout.add_widget(main_window_container)
         return bottom_navigation_layout
