@@ -1,3 +1,7 @@
+import asyncio
+import image_generation
+import image_posteffects
+import image_transformation
 import images_collecting
 import os
 from kivy.clock import Clock
@@ -9,34 +13,49 @@ from kivymd.uix.bottomnavigation import MDBottomNavigation, MDBottomNavigationIt
 from kivymd.uix.selectioncontrol import MDCheckbox
 from kivymd.uix.textfield import MDTextField
 from kivymd.app import MDApp
-from kivymd.uix.floatlayout import MDFloatLayout
+from kivymd.uix.screenmanager import MDScreenManager
 from kivymd.uix.datatables import MDDataTable
 from kivymd.uix.filemanager import MDFileManager
 from kivymd.toast import toast
 from kivy.metrics import dp
+from kivy.uix.image import AsyncImage
 from kivy.core.window import Window
 from kivymd.uix.button import MDRectangleFlatButton, MDFloatingActionButton
-import image_transformation
-import image_posteffects
+from threading import Thread
 
 
 class App(MDApp):
     def build(self, **kwargs):
+        # app atributes
         self.theme_cls.theme_style = "Dark"
         self.theme_cls.primary_palette = "Gray"
         Window.size = (1920, 1080)
         Window.fullscreen = "auto"
-        bottom_navigation_layout = MDBottomNavigation(
+        # Screens layout
+        self.bottom_navigation_layout = MDBottomNavigation(
             selected_color_background="orange", text_color_active="lightgrey")
-        # bottom navigation tab description
-        main_window_container = MDBottomNavigationItem()
-        main_window_container.text = "Augmentation"
-        main_window_container.icon = 'image-edit-outline'
-        main_window_container.md_bg_color = '#3F3F3F'
-        image_generation_container = ""
-        main_window_container.add_widget(MainScreen())
-        bottom_navigation_layout.add_widget(main_window_container)
-        return bottom_navigation_layout
+        # main window bottom navigation tab description
+        self.main_window_container = MDBottomNavigationItem()
+        self.main_window_container.text = "Editing"
+        self.main_window_container.name = 'Editing'
+        self.main_window_container.icon = 'image-edit-outline'
+        self.main_window_container.md_bg_color = '#3F3F3F'
+        # generation window bottom navigation tab description
+        self.image_generation_container = MDBottomNavigationItem()
+        self.image_generation_container.name = 'Generation'
+        self.image_generation_container.icon = 'image-auto-adjust'
+        self.image_generation_container.text = 'Generation'
+        # assighning widgets to their's parents
+        self.main_window_container.add_widget(MainScreen())
+        self.image_generation_container.add_widget(ImageGenerationScreen())
+        self.bottom_navigation_layout.add_widget(self.main_window_container)
+        self.bottom_navigation_layout.add_widget(
+            self.image_generation_container)
+        self.bottom_navigation_layout.on_switch_tabs = self.switch_screens
+        return self.bottom_navigation_layout
+
+    def switch_screens(self, next_item, name):
+        self.bottom_navigation_layout.switch_tab(name)
 
 
 def transform_items_constructor(widgets: list, columns=3):
@@ -54,6 +73,121 @@ def transform_items_constructor(widgets: list, columns=3):
 class ImageGenerationScreen(MDScreen):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # Buffer variables
+        self.images_unload_path = ''
+        # image generation window layout
+        generation_layout = MDGridLayout()
+        generation_layout.md_bg_color = "#1E1E1E"
+        generation_layout.cols = 2
+        generation_layout.rows = 1
+        generation_layout.size_hint = (1, 1)
+        generation_layout.spacing = 50
+        # Images Layout attributes
+        images_layout = MDGridLayout()
+        images_layout.cols = 1
+        images_layout.rows = 2
+        images_layout.size_hint = (0.5, 1)
+        # Image generation input parameters layout
+        input_grid = MDGridLayout()
+        input_grid.cols = 1
+        input_grid.spacing = 40
+        input_grid.size_hint = (0.5, 0.8)
+        # Prompt input text field
+        self.prompt_field = MDTextField()
+        self.prompt_field.mode = 'rectangle'
+        self.prompt_field.hint_text = 'Positive prompt'
+        self.prompt_field.size_hint = (0.45, 0.15)
+        self.prompt_field.multiline = True
+        self.prompt_field.max_text_length = 1000
+        self.prompt_field.helper_text_mode = 'on_error'
+        self.prompt_field.required = True
+        self.prompt_field.helper_text = 'Maximal size of a prompt = 1000'
+        # Negative prompt input text field
+        self.negative_prompt = MDTextField()
+        self.negative_prompt.mode = 'rectangle'
+        self.negative_prompt.multiline = True
+        self.negative_prompt.hint_text = 'Negative prompt'
+        self.negative_prompt.size_hint = (0.45, 0.15)
+        self.negative_prompt.max_text_length = 1000
+        self.negative_prompt.helper_text = 'Maximal size of a prompt = 1000'
+        self.negative_prompt.helper_text_mode = 'on_error'
+        # Image placeholder
+        self.current_downloaded_image = AsyncImage(source='placeholder.png')
+        self.current_downloaded_image.size_hint = (1, 1)
+        # Open Path to output button
+        self.output_button = MDRectangleFlatButton()
+        self.output_button.padding = 20
+        self.output_button.size_hint_max = (0.4, 0.05)
+        self.output_button.text = 'Choose output path'
+        self.output_button.on_press = lambda: self.file_manager_opener()
+        # Send request button
+        self.start_button = MDFloatingActionButton()
+        self.start_button.size = (65, 65)
+        self.start_button.icon = 'send-variant-outline'
+        self.start_button.md_bg_color = '#D9D9D9'
+        self.start_button.radius = 20
+        self.start_button.text_color = '#1E1E1E'
+        self.start_button.on_press = self.generate_image_checks
+        # File manager definition and attributes
+        self.manager_open = False
+        self.file_manager = MDFileManager(
+            exit_manager=self.exit_manager,
+            select_path=self.select_path,
+            ext=[],
+            preview=True,
+        )
+        # assighning widgets to their's parents
+        images_layout.add_widget(self.current_downloaded_image)
+        images_layout.add_widget(self.output_button)
+        input_grid.add_widget(self.prompt_field)
+        input_grid.add_widget(self.negative_prompt)
+        input_grid.add_widget(self.start_button)
+        generation_layout.add_widget(images_layout)
+        generation_layout.add_widget(input_grid)
+        self.add_widget(generation_layout)
+
+    def generate_image_checks(self):
+        if self.prompt_field.text:
+            if self.images_unload_path:
+                process = Thread(target=self.generate_image)
+                process.start()
+            else:
+                toast('Choose download dirrectory')
+        else:
+            toast("Please input prompt")
+
+    def generate_image(self):
+        images_in_dir = [f for f in os.listdir(self.images_unload_path) if os.path.isfile(
+            os.path.join(self.images_unload_path, f))]
+        current_index = 0
+        while 'ai_img_' + str(current_index) + '.png' in images_in_dir:
+            current_index += 1
+        self.image_path = self.images_unload_path + \
+            '\\ai_img_' + str(current_index) + '.png'
+        image = image_generation.get_generated_image(
+            prompt=self.prompt_field.text,
+            negative_prompt=self.negative_prompt.text,
+        )
+        images_collecting.save_images(
+            images_list=[(image, 'ai_img_' + str(current_index) + '.png')], PATH=self.images_unload_path)
+        Clock.schedule_once(self.update_image)
+
+    def update_image(self, *args):
+        self.current_downloaded_image.source = self.image_path
+
+    def file_manager_opener(self):
+        self.manager_open = True
+        path = os.path.expanduser("C:\\")
+        self.file_manager.show(path)
+
+    def select_path(self, path):
+        self.exit_manager()
+        self.images_unload_path = path
+        self.output_button.text = path
+
+    def exit_manager(self, *args):
+        self.manager_open = False
+        self.file_manager.close()
 
 
 class MainScreen(MDScreen):

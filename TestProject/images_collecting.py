@@ -36,6 +36,7 @@ def read_images_attributes(PATH):
 
 def save_images(images_list: list, PATH: str):
     for image in images_list:
+
         cv2.imwrite(PATH+'\\'+image[1], image[0])
 
 
