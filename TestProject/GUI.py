@@ -128,6 +128,18 @@ class ImageGenerationScreen(MDScreen):
         self.start_button.radius = 20
         self.start_button.text_color = '#1E1E1E'
         self.start_button.on_press = self.generate_image_checks
+        # Width input field
+        self.width_textfield = MDTextField()
+        self.width_textfield.hint_text = 'Width 1-1024'
+        self.width_textfield.size_hint = (1, None)
+        self.width_textfield.mode = "round"
+        self.width_textfield.height = 30
+        # Height unput field
+        self.height_textfield = MDTextField()
+        self.height_textfield.hint_text = 'Height 1-1024'
+        self.height_textfield.size_hint = (1, None)
+        self.height_textfield.mode = "round"
+        self.height_textfield.height = 30
         # File manager definition and attributes
         self.manager_open = False
         self.file_manager = MDFileManager(
@@ -141,6 +153,8 @@ class ImageGenerationScreen(MDScreen):
         images_layout.add_widget(self.output_button)
         input_grid.add_widget(self.prompt_field)
         input_grid.add_widget(self.negative_prompt)
+        input_grid.add_widget(self.width_textfield)
+        input_grid.add_widget(self.height_textfield)
         input_grid.add_widget(self.start_button)
         generation_layout.add_widget(images_layout)
         generation_layout.add_widget(input_grid)
@@ -149,8 +163,19 @@ class ImageGenerationScreen(MDScreen):
     def generate_image_checks(self):
         if self.prompt_field.text:
             if self.images_unload_path:
-                process = Thread(target=self.generate_image)
-                process.start()
+                try:
+                    width_check = int(self.width_textfield.text)
+                    height_check = int(self.width_textfield.text)
+                    if (width_check > 1024) or (height_check > 1024):
+                        toast('Image dimension must be lower than 1024')
+                        return None
+                    elif (width_check < 0) or (height_check < 0):
+                        toast('Image dimension must be higher than 0')
+                        return None
+                    process = Thread(target=self.generate_image)
+                    process.start()
+                except:
+                    toast('Width and height need to be numbers')
             else:
                 toast('Choose download dirrectory')
         else:
@@ -164,10 +189,18 @@ class ImageGenerationScreen(MDScreen):
             current_index += 1
         self.image_path = self.images_unload_path + \
             '\\ai_img_' + str(current_index) + '.png'
-        image = image_generation.get_generated_image(
-            prompt=self.prompt_field.text,
-            negative_prompt=self.negative_prompt.text,
-        )
+        if self.width_textfield and self.height_textfield:
+            image = image_generation.get_generated_image(
+                prompt=self.prompt_field.text,
+                negative_prompt=self.negative_prompt.text,
+                width=int(self.width_textfield.text),
+                height=int(self.height_textfield.text)
+            )
+        else:
+            image = image_generation.get_generated_image(
+                prompt=self.prompt_field.text,
+                negative_prompt=self.negative_prompt.text,
+            )
         images_collecting.save_images(
             images_list=[(image, 'ai_img_' + str(current_index) + '.png')], PATH=self.images_unload_path)
         Clock.schedule_once(self.update_image)
