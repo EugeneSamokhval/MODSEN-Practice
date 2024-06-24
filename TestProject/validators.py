@@ -2,13 +2,13 @@ import re
 
 
 def is_point(user_input: str):
-    pattern = r'\[\d+,\s+\d+\]'
+    pattern = r"\[\d+,\s+\d+\]"
     return bool(re.fullmatch(pattern, user_input))
 
 
 def is_pos_digital(user_input: str):
     try:
-        if (int(user_input) > 0):
+        if int(user_input) > 0:
             return True
         else:
             return False
@@ -16,4 +16,4 @@ def is_pos_digital(user_input: str):
         return False
 
 
-print(is_pos_digital('-dqav'))
+print(is_pos_digital("-dqav"))

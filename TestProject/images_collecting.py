@@ -20,24 +20,29 @@ def read_images_attributes(PATH):
     data_container = []
     counter = 0
     for path in file_paths:
-        name = path.split('\\')[-1]
+        name = path.split("\\")[-1]
         try:
             with Image.open(path) as img:
                 resolution = img.size
                 img_format = img.format
                 data_container.append(
-                    (str(counter), name, str(resolution[0])+'X'+str(resolution[1]), img_format, '1'))
+                    (
+                        str(counter),
+                        name,
+                        str(resolution[0]) + "X" + str(resolution[1]),
+                        img_format,
+                        "1",
+                    )
+                )
         except IOError:
-            data_container.append(
-                (str(counter), name, 'Unknown', 'Unknown', str(0)))
+            data_container.append((str(counter), name, "Unknown", "Unknown", str(0)))
         counter += 1
     return data_container
 
 
 def save_images(images_list: list, PATH: str):
     for image in images_list:
-
-        cv2.imwrite(PATH+'\\'+image[1], image[0])
+        cv2.imwrite(PATH + "\\" + image[1], image[0])
 
 
 def load_images(PATH):

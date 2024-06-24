@@ -8,6 +8,7 @@ from kivy.clock import Clock
 from kivymd.uix.screen import MDScreen
 from kivymd.uix.label import MDLabel
 from kivymd.uix.gridlayout import MDGridLayout
+from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.stacklayout import MDStackLayout
 from kivymd.uix.bottomnavigation import MDBottomNavigation, MDBottomNavigationItem
 from kivymd.uix.selectioncontrol import MDCheckbox
@@ -33,24 +34,24 @@ class App(MDApp):
         Window.fullscreen = "auto"
         # Screens layout
         self.bottom_navigation_layout = MDBottomNavigation(
-            selected_color_background="orange", text_color_active="lightgrey")
+            selected_color_background="orange", text_color_active="lightgrey"
+        )
         # main window bottom navigation tab description
         self.main_window_container = MDBottomNavigationItem()
         self.main_window_container.text = "Editing"
-        self.main_window_container.name = 'Editing'
-        self.main_window_container.icon = 'image-edit-outline'
-        self.main_window_container.md_bg_color = '#3F3F3F'
+        self.main_window_container.name = "Editing"
+        self.main_window_container.icon = "image-edit-outline"
+        self.main_window_container.md_bg_color = "#3F3F3F"
         # generation window bottom navigation tab description
         self.image_generation_container = MDBottomNavigationItem()
-        self.image_generation_container.name = 'Generation'
-        self.image_generation_container.icon = 'image-auto-adjust'
-        self.image_generation_container.text = 'Generation'
+        self.image_generation_container.name = "Generation"
+        self.image_generation_container.icon = "image-auto-adjust"
+        self.image_generation_container.text = "Generation"
         # assighning widgets to their's parents
         self.main_window_container.add_widget(MainScreen())
         self.image_generation_container.add_widget(ImageGenerationScreen())
         self.bottom_navigation_layout.add_widget(self.main_window_container)
-        self.bottom_navigation_layout.add_widget(
-            self.image_generation_container)
+        self.bottom_navigation_layout.add_widget(self.image_generation_container)
         self.bottom_navigation_layout.on_switch_tabs = self.switch_screens
         return self.bottom_navigation_layout
 
@@ -63,8 +64,9 @@ def transform_items_constructor(widgets: list, columns=3):
     result.size_hint = (None, None)
     result.size = (350, 65)
     result.spacing = 10
+    result.line_color = "#7B7B7B"
     result.radius = 15
-    result.md_bg_color = '#3F3F3F'
+    result.md_bg_color = "#1E1E1E"
     for widget in widgets:
         result.add_widget(widget)
     return result
@@ -74,7 +76,7 @@ class ImageGenerationScreen(MDScreen):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Buffer variables
-        self.images_unload_path = ''
+        self.images_unload_path = ""
         # image generation window layout
         generation_layout = MDGridLayout()
         generation_layout.md_bg_color = "#1E1E1E"
@@ -94,49 +96,49 @@ class ImageGenerationScreen(MDScreen):
         input_grid.size_hint = (0.5, 0.8)
         # Prompt input text field
         self.prompt_field = MDTextField()
-        self.prompt_field.mode = 'rectangle'
-        self.prompt_field.hint_text = 'Positive prompt'
+        self.prompt_field.mode = "rectangle"
+        self.prompt_field.hint_text = "Positive prompt"
         self.prompt_field.size_hint = (0.45, 0.15)
         self.prompt_field.multiline = True
         self.prompt_field.max_text_length = 1000
-        self.prompt_field.helper_text_mode = 'on_error'
+        self.prompt_field.helper_text_mode = "on_error"
         self.prompt_field.required = True
-        self.prompt_field.helper_text = 'Maximal size of a prompt = 1000'
+        self.prompt_field.helper_text = "Maximal size of a prompt = 1000"
         # Negative prompt input text field
         self.negative_prompt = MDTextField()
-        self.negative_prompt.mode = 'rectangle'
+        self.negative_prompt.mode = "rectangle"
         self.negative_prompt.multiline = True
-        self.negative_prompt.hint_text = 'Negative prompt'
+        self.negative_prompt.hint_text = "Negative prompt"
         self.negative_prompt.size_hint = (0.45, 0.15)
         self.negative_prompt.max_text_length = 1000
-        self.negative_prompt.helper_text = 'Maximal size of a prompt = 1000'
-        self.negative_prompt.helper_text_mode = 'on_error'
+        self.negative_prompt.helper_text = "Maximal size of a prompt = 1000"
+        self.negative_prompt.helper_text_mode = "on_error"
         # Image placeholder
-        self.current_downloaded_image = AsyncImage(source='placeholder.png')
+        self.current_downloaded_image = AsyncImage(source="placeholder.png")
         self.current_downloaded_image.size_hint = (1, 1)
         # Open Path to output button
         self.output_button = MDRectangleFlatButton()
         self.output_button.padding = 20
         self.output_button.size_hint_max = (0.4, 0.05)
-        self.output_button.text = 'Choose output path'
+        self.output_button.text = "Choose output path"
         self.output_button.on_press = lambda: self.file_manager_opener()
         # Send request button
         self.start_button = MDFloatingActionButton()
         self.start_button.size = (65, 65)
-        self.start_button.icon = 'send-variant-outline'
-        self.start_button.md_bg_color = '#D9D9D9'
+        self.start_button.icon = "send-variant-outline"
+        self.start_button.md_bg_color = "#D9D9D9"
         self.start_button.radius = 20
-        self.start_button.text_color = '#1E1E1E'
+        self.start_button.text_color = "#1E1E1E"
         self.start_button.on_press = self.generate_image_checks
         # Width input field
         self.width_textfield = MDTextField()
-        self.width_textfield.hint_text = 'Width 1-1024'
+        self.width_textfield.hint_text = "Width 1-1024"
         self.width_textfield.size_hint = (1, None)
         self.width_textfield.mode = "round"
         self.width_textfield.height = 30
         # Height unput field
         self.height_textfield = MDTextField()
-        self.height_textfield.hint_text = 'Height 1-1024'
+        self.height_textfield.hint_text = "Height 1-1024"
         self.height_textfield.size_hint = (1, None)
         self.height_textfield.mode = "round"
         self.height_textfield.height = 30
@@ -167,34 +169,38 @@ class ImageGenerationScreen(MDScreen):
                     width_check = int(self.width_textfield.text)
                     height_check = int(self.width_textfield.text)
                     if (width_check > 1024) or (height_check > 1024):
-                        toast('Image dimension must be lower than 1024')
+                        toast("Image dimension must be lower than 1024")
                         return None
                     elif (width_check < 0) or (height_check < 0):
-                        toast('Image dimension must be higher than 0')
+                        toast("Image dimension must be higher than 0")
                         return None
                     process = Thread(target=self.generate_image)
                     process.start()
                 except:
-                    toast('Width and height need to be numbers')
+                    toast("Width and height need to be numbers")
             else:
-                toast('Choose download dirrectory')
+                toast("Choose download dirrectory")
         else:
             toast("Please input prompt")
 
     def generate_image(self):
-        images_in_dir = [f for f in os.listdir(self.images_unload_path) if os.path.isfile(
-            os.path.join(self.images_unload_path, f))]
+        images_in_dir = [
+            f
+            for f in os.listdir(self.images_unload_path)
+            if os.path.isfile(os.path.join(self.images_unload_path, f))
+        ]
         current_index = 0
-        while 'ai_img_' + str(current_index) + '.png' in images_in_dir:
+        while "ai_img_" + str(current_index) + ".png" in images_in_dir:
             current_index += 1
-        self.image_path = self.images_unload_path + \
-            '\\ai_img_' + str(current_index) + '.png'
+        self.image_path = (
+            self.images_unload_path + "\\ai_img_" + str(current_index) + ".png"
+        )
         if self.width_textfield and self.height_textfield:
             image = image_generation.get_generated_image(
                 prompt=self.prompt_field.text,
                 negative_prompt=self.negative_prompt.text,
                 width=int(self.width_textfield.text),
-                height=int(self.height_textfield.text)
+                height=int(self.height_textfield.text),
             )
         else:
             image = image_generation.get_generated_image(
@@ -202,7 +208,9 @@ class ImageGenerationScreen(MDScreen):
                 negative_prompt=self.negative_prompt.text,
             )
         images_collecting.save_images(
-            images_list=[(image, 'ai_img_' + str(current_index) + '.png')], PATH=self.images_unload_path)
+            images_list=[(image, "ai_img_" + str(current_index) + ".png")],
+            PATH=self.images_unload_path,
+        )
         Clock.schedule_once(self.update_image)
 
     def update_image(self, *args):
@@ -229,133 +237,155 @@ class MainScreen(MDScreen):
         # Load-Uload buffer variables
         self.my_selections = []
         self.is_input = None
-        self.images_load_path = ''
-        self.images_unload_path = ''
+        self.images_load_path = ""
+        self.images_unload_path = ""
         # Main screen attributes
         Window.bind(on_keyboard=self.events)
-        self.md_bg_color = "#1C1C1C"
+        self.md_bg_color = "#1E1E1E"
         # Agumnetation tab attributes
         main_window_layout = MDStackLayout()
         main_window_layout.orientation = "lr-tb"
         main_window_layout.size_hint = (1, 1)
-        main_window_layout.md_bg_color = "#3F3F3F"
-        main_window_layout.spacing = 50
+        main_window_layout.md_bg_color = "#1E1E1E"
+        main_window_layout.spacing = 35
         # Transformations list layout
-        transform_layout = MDGridLayout(
-            cols=1, size_hint=(0.2, 0.7), padding=20)
-        transform_layout.md_bg_color = "#1C1C1C"
+        transform_layout = MDGridLayout(cols=1, size_hint=(0.2, 1), padding=20)
+        transform_layout.md_bg_color = "#1E1E1E"
         transform_layout.spacing = 10
         # Checkboxes container
         self.checkboxes = dict()
         check_list = [MDCheckbox(size_hint=(0.1, 0.1)) for i in range(9)]
         # Resize item
-        self.checkboxes[check_list[0]] = [MDTextField(hint_text='width', size_hint=(
-            0.35, 0.08)), MDTextField(hint_text='height', size_hint=(0.35, 0.1))]
-        resize_widget = transform_items_constructor([
-            check_list[0],
-            MDLabel(text="Resize", size_hint=(0.15, 0.1)),
-            self.checkboxes.get(check_list[0])[0],
-            self.checkboxes.get(check_list[0])[1],
-        ], columns=4)
+        self.checkboxes[check_list[0]] = [
+            MDTextField(hint_text="width", size_hint=(0.35, 0.08)),
+            MDTextField(hint_text="height", size_hint=(0.35, 0.1)),
+        ]
+        resize_widget = transform_items_constructor(
+            [
+                check_list[0],
+                MDLabel(text="Resize", size_hint=(0.15, 0.1)),
+                self.checkboxes.get(check_list[0])[0],
+                self.checkboxes.get(check_list[0])[1],
+            ],
+            columns=4,
+        )
         # cutout item
-        self.checkboxes[check_list[1]] = [MDTextField(
-            hint_text='top left point [x, y]', size_hint=(0.35, 0.1)),
-            MDTextField(
-                hint_text='bottom right point [x, y]', size_hint=(0.35, 0.1))]
-        cutout_widget = transform_items_constructor([
-            check_list[1],
-            MDLabel(text="Cut", size_hint=(0.15, 0.1)),
-            self.checkboxes.get(check_list[1])[0],
-            self.checkboxes.get(check_list[1])[1]
-        ], columns=4)
+        self.checkboxes[check_list[1]] = [
+            MDTextField(hint_text="top left point [x, y]", size_hint=(0.35, 0.1)),
+            MDTextField(hint_text="bottom right point [x, y]", size_hint=(0.35, 0.1)),
+        ]
+        cutout_widget = transform_items_constructor(
+            [
+                check_list[1],
+                MDLabel(text="Cut", size_hint=(0.15, 0.1)),
+                self.checkboxes.get(check_list[1])[0],
+                self.checkboxes.get(check_list[1])[1],
+            ],
+            columns=4,
+        )
         # flip item
-        self.checkboxes[check_list[2]] = [MDTextField(hint_text='Is flip horisontal?',
-                                                      size_hint=(0.7, 0.1))]
-        flip_widget = transform_items_constructor([
-            check_list[2],
-            MDLabel(text="Flip", size_hint=(0.15, 0.1)),
-            self.checkboxes.get(check_list[2])[0]
-        ])
+        self.checkboxes[check_list[2]] = [
+            MDTextField(hint_text="Is flip horisontal?", size_hint=(0.7, 0.1))
+        ]
+        flip_widget = transform_items_constructor(
+            [
+                check_list[2],
+                MDLabel(text="Flip", size_hint=(0.15, 0.1)),
+                self.checkboxes.get(check_list[2])[0],
+            ]
+        )
         # rotate item
-        self.checkboxes[check_list[3]] = [MDTextField(
-            hint_text='center [x, y]', size_hint=(0.35, 0.1)),
-            MDTextField(
-                hint_text='angle of rotation', size_hint=(0.35, 0.1)),]
-        rotate_widget = transform_items_constructor([
-            check_list[3],
-            MDLabel(text="Rotate", size_hint=(0.15, 0.1)),
-            self.checkboxes.get(check_list[3])[0],
-            self.checkboxes.get(check_list[3])[1],
-        ], columns=4)
+        self.checkboxes[check_list[3]] = [
+            MDTextField(hint_text="center [x, y]", size_hint=(0.35, 0.1)),
+            MDTextField(hint_text="angle of rotation", size_hint=(0.35, 0.1)),
+        ]
+        rotate_widget = transform_items_constructor(
+            [
+                check_list[3],
+                MDLabel(text="Rotate", size_hint=(0.15, 0.1)),
+                self.checkboxes.get(check_list[3])[0],
+                self.checkboxes.get(check_list[3])[1],
+            ],
+            columns=4,
+        )
         # shift image
-        self.checkboxes[check_list[4]] = [MDTextField(
-            hint_text='shift horizontal', size_hint=(0.35, 0.1)),
-            MDTextField(
-            hint_text='shift vertical', size_hint=(0.35, 0.1)),
+        self.checkboxes[check_list[4]] = [
+            MDTextField(hint_text="shift horizontal", size_hint=(0.35, 0.1)),
+            MDTextField(hint_text="shift vertical", size_hint=(0.35, 0.1)),
         ]
-        shift_widget = transform_items_constructor([
-            check_list[4],
-            MDLabel(text="Shift", size_hint=(0.15, 0.1)),
-            self.checkboxes.get(check_list[4])[0],
-            self.checkboxes.get(check_list[4])[1]
-        ], columns=4)
+        shift_widget = transform_items_constructor(
+            [
+                check_list[4],
+                MDLabel(text="Shift", size_hint=(0.15, 0.1)),
+                self.checkboxes.get(check_list[4])[0],
+                self.checkboxes.get(check_list[4])[1],
+            ],
+            columns=4,
+        )
         # change brightness
-        self.checkboxes[check_list[5]] = [MDTextField(
-            hint_text='scale of changes', size_hint=(0.70, 0.1)),
+        self.checkboxes[check_list[5]] = [
+            MDTextField(hint_text="scale of changes", size_hint=(0.70, 0.1)),
         ]
-        brightness_widget = transform_items_constructor([
-            check_list[5],
-            MDLabel(text="Brightness", size_hint=(0.15, 0.1)),
-            self.checkboxes.get(check_list[5])[0],
-        ])
+        brightness_widget = transform_items_constructor(
+            [
+                check_list[5],
+                MDLabel(text="Brightness", size_hint=(0.15, 0.1)),
+                self.checkboxes.get(check_list[5])[0],
+            ]
+        )
         # change contrast
-        self.checkboxes[check_list[6]] = [MDTextField(
-            hint_text='scale of changes', size_hint=(0.70, 0.1)),
+        self.checkboxes[check_list[6]] = [
+            MDTextField(hint_text="scale of changes", size_hint=(0.70, 0.1)),
         ]
-        contrast_widget = transform_items_constructor([
-            check_list[6],
-            MDLabel(text="Contrast", size_hint=(0.15, 0.1)),
-            self.checkboxes.get(check_list[6])[0],
-        ])
+        contrast_widget = transform_items_constructor(
+            [
+                check_list[6],
+                MDLabel(text="Contrast", size_hint=(0.15, 0.1)),
+                self.checkboxes.get(check_list[6])[0],
+            ]
+        )
         # add noise
-        self.checkboxes[check_list[7]] = [MDTextField(
-            hint_text='scale of changes', size_hint=(0.70, 0.1)),
+        self.checkboxes[check_list[7]] = [
+            MDTextField(hint_text="scale of changes", size_hint=(0.70, 0.1)),
         ]
-        noise_widget = transform_items_constructor([
-            check_list[7],
-            MDLabel(text="Noise", size_hint=(0.15, 0.1)),
-            self.checkboxes.get(check_list[7])[0],
-        ])
+        noise_widget = transform_items_constructor(
+            [
+                check_list[7],
+                MDLabel(text="Noise", size_hint=(0.15, 0.1)),
+                self.checkboxes.get(check_list[7])[0],
+            ]
+        )
         # change saturation
-        self.checkboxes[check_list[8]] = [MDTextField(
-            hint_text='scale of changes', size_hint=(0.70, 0.1)),
+        self.checkboxes[check_list[8]] = [
+            MDTextField(hint_text="scale of changes", size_hint=(0.70, 0.1)),
         ]
-        saturation_widget = transform_items_constructor([
-            check_list[8],
-            MDLabel(text="Saturation", size_hint=(0.15, 0.1)),
-            self.checkboxes.get(check_list[8])[0],
-        ])
+        saturation_widget = transform_items_constructor(
+            [
+                check_list[8],
+                MDLabel(text="Saturation", size_hint=(0.15, 0.1)),
+                self.checkboxes.get(check_list[8])[0],
+            ]
+        )
 
         # Table of images and their's attributes
         self.image_table = MDDataTable(
             use_pagination=True,
             check=True,
             column_data=[
-                ('№', dp(30)),
-                ('Title', dp(60)),
-                ('Resolution', dp(50)),
-                ('Format', dp(30)),
-                ('intact', dp(30))
+                ("№", dp(30)),
+                ("Title", dp(60)),
+                ("Resolution", dp(50)),
+                ("Format", dp(30)),
+                ("intact", dp(30)),
             ],
             sorted_on="Schedule",
             sorted_order="ASC",
             elevation=2,
-            size_hint=(0.8, 0.6),
-            pos_hint=(1, 1)
+            size_hint=(0.8, 1),
+            pos_hint=(1, 1),
         )
         self.image_table.bind(on_check_press=self.on_check)
-        self.image_table.header.ids.check.bind(
-            on_release=self.on_checkbox_active)
+        self.image_table.header.ids.check.bind(on_release=self.on_checkbox_active)
         self.image_table.padding = 25
         # File manager definition and attributes
         self.manager_open = False
@@ -369,22 +399,22 @@ class MainScreen(MDScreen):
         self.input_button = MDRectangleFlatButton()
         self.input_button.padding = 20
         self.input_button.size_hint = (0.1, 0.05)
-        self.input_button.text = 'Choose input path'
+        self.input_button.text = "Choose input path"
         self.input_button.on_press = lambda: self.file_manager_opener(True)
         # Open path to output button
         self.output_button = MDRectangleFlatButton()
         self.output_button.padding = 20
         self.output_button.size_hint = (0.1, 0.05)
-        self.output_button.text = 'Choose output path'
+        self.output_button.text = "Choose output path"
         self.output_button.on_press = lambda: self.file_manager_opener(False)
         # Start transformations
         start_button = MDFloatingActionButton()
-        start_button.icon = 'send-variant-outline'
+        start_button.icon = "send-variant-outline"
         start_button.size = (25, 25)
         start_button.font_size = 24
-        start_button.text_color = '#FFFFFF'
+        start_button.text_color = "#FFFFFF"
         start_button.padding = 10
-        start_button.pos_hint = {'x': 0.8, 'y': 0.5}
+        start_button.pos_hint = {"x": 0.8, "y": 0.5}
         start_button.on_press = self.start_processing
         # Add widgets to their's parents
         transform_layout.add_widget(resize_widget)
@@ -398,13 +428,13 @@ class MainScreen(MDScreen):
         transform_layout.add_widget(saturation_widget)
         main_window_layout.add_widget(self.image_table)
         main_window_layout.add_widget(transform_layout)
-        main_window_layout.add_widget(self.input_button)
-        main_window_layout.add_widget(self.output_button)
-        main_window_layout.add_widget(start_button)
+        transform_layout.add_widget(self.input_button)
+        transform_layout.add_widget(self.output_button)
+        transform_layout.add_widget(start_button)
         self.add_widget(main_window_layout)
 
     def on_checkbox_active(self, cb):
-        if cb.state == 'normal':
+        if cb.state == "normal":
             Clock.schedule_once(self.update_checks, 0)
 
     def on_check(self, instance, row_data):
@@ -415,8 +445,10 @@ class MainScreen(MDScreen):
         table_data = self.image_table.table_data
         for page, selected_cells in table_data.current_selection_check.items():
             for column_index in selected_cells:
-                data_index = int(page * table_data.rows_num +
-                                 column_index / table_data.total_col_headings)
+                data_index = int(
+                    page * table_data.rows_num
+                    + column_index / table_data.total_col_headings
+                )
                 self.my_selections.append(table_data.row_data[data_index][0])
 
     def calcute_to_do(self):
@@ -426,41 +458,54 @@ class MainScreen(MDScreen):
             if key.active:
                 func_inputs = []
                 for textfield in self.checkboxes.get(key):
-                    if ']' in textfield.text:
-                        func_inputs.append([int(entry) for entry in textfield.text.strip(
-                            ']').strip('[').split(', ')])
+                    if "]" in textfield.text:
+                        func_inputs.append(
+                            [
+                                int(entry)
+                                for entry in textfield.text.strip("]")
+                                .strip("[")
+                                .split(", ")
+                            ]
+                        )
                     else:
                         func_inputs.append(int(textfield.text))
                 to_do_list.append([func, func_inputs])
         return to_do_list
 
-    def start_processing(self):
+    def process_images(self):
         try:
-            if self.images_load_path and self.images_unload_path:
-                to_do_list = self.calcute_to_do()
-                images = images_collecting.load_images(self.images_load_path)
-                needed_images = []
-                checked_names = [self.image_table.row_data[int(i)][1]
-                                 for i in self.my_selections]
-                for image in images:
-                    for name in checked_names:
-                        if name == image[1].split('\\')[-1]:
-                            needed_images.append(image)
-                            break
-                result = []
-                for image in needed_images:
-                    temp_image = image[0]
-                    for func in to_do_list:
-                        temp_image = func[0](temp_image, *func[1])
-                    result.append([temp_image, image[1].split('\\')[-1]])
-                images_collecting.save_images(
-                    result, PATH=self.images_unload_path)
-                toast('New images are saved at ' + self.images_unload_path)
-            else:
-                toast('You need to choose upload and import paths')
+            to_do_list = self.calcute_to_do()
+            images = images_collecting.load_images(self.images_load_path)
+            needed_images = []
+            checked_names = [
+                self.image_table.row_data[int(i)][1] for i in self.my_selections
+            ]
+            for image in images:
+                for name in checked_names:
+                    if name == image[1].split("\\")[-1]:
+                        needed_images.append(image)
+                        break
+            result = []
+            for image in needed_images:
+                temp_image = image[0]
+                for func in to_do_list:
+                    temp_image = func[0](temp_image, *func[1])
+                result.append([temp_image, image[1].split("\\")[-1]])
+            images_collecting.save_images(result, PATH=self.images_unload_path)
+            Clock.schedule_once(
+                toast("New images are saved at " + self.images_unload_path)
+            )
         except:
             toast(
-                'Error while converting images. Check the entered data for correctness.')
+                "Error while converting images. Check the entered data for correctness."
+            )
+
+    def start_processing(self):
+        if self.images_load_path and self.images_unload_path:
+            process = Thread(target=self.process_images)
+            process.start()
+        else:
+            toast("You need to choose upload and import paths")
 
     def load_images(self, path):
         new_images = images_collecting.read_images_attributes(path)

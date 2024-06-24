@@ -7,7 +7,7 @@ def resize(image, width, height):
 
 
 def cutout(image, top_left: list, down_right: list):
-    return image[top_left[0]: down_right[0], top_left[1]: down_right[1]]
+    return image[top_left[0] : down_right[0], top_left[1] : down_right[1]]
 
 
 def flip(image, is_horisontal):

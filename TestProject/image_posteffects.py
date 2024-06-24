@@ -11,7 +11,7 @@ def saturation(image, change_scale):
 
 
 def brightness(image, change_scale):
-    brightness_matrix = np.ones(image.shape, dtype='uint8') * change_scale
+    brightness_matrix = np.ones(image.shape, dtype="uint8") * change_scale
     bright_image = cv2.add(image, brightness_matrix)
     return bright_image
 
