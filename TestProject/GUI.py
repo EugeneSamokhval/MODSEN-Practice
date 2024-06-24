@@ -1,4 +1,3 @@
-import asyncio
 import image_generation
 import image_posteffects
 import image_transformation
@@ -8,21 +7,39 @@ from kivy.clock import Clock
 from kivymd.uix.screen import MDScreen
 from kivymd.uix.label import MDLabel
 from kivymd.uix.gridlayout import MDGridLayout
-from kivymd.uix.boxlayout import MDBoxLayout
 from kivymd.uix.stacklayout import MDStackLayout
 from kivymd.uix.bottomnavigation import MDBottomNavigation, MDBottomNavigationItem
 from kivymd.uix.selectioncontrol import MDCheckbox
 from kivymd.uix.textfield import MDTextField
 from kivymd.app import MDApp
-from kivymd.uix.screenmanager import MDScreenManager
 from kivymd.uix.datatables import MDDataTable
 from kivymd.uix.filemanager import MDFileManager
 from kivymd.toast import toast
 from kivy.metrics import dp
 from kivy.uix.image import AsyncImage
 from kivy.core.window import Window
-from kivymd.uix.button import MDRectangleFlatButton, MDFloatingActionButton
+from kivymd.uix.button import (
+    MDRectangleFlatButton,
+    MDFloatingActionButton,
+    MDFlatButton,
+)
 from threading import Thread
+from kivymd.uix.dialog import MDDialog
+
+
+def open_dialog_error(error_text):
+    dialog_window = MDDialog()
+    dialog_window.title = "Error"
+    dialog_window.md_bg_color = "#2e0000"
+    dialog_window.text = error_text
+    return dialog_window.open()
+
+
+def open_dialog_message(message_text):
+    dialog_window = MDDialog()
+    dialog_window.title = "Message"
+    dialog_window.text = message_text
+    return dialog_window.open()
 
 
 class App(MDApp):
@@ -51,7 +68,8 @@ class App(MDApp):
         self.main_window_container.add_widget(MainScreen())
         self.image_generation_container.add_widget(ImageGenerationScreen())
         self.bottom_navigation_layout.add_widget(self.main_window_container)
-        self.bottom_navigation_layout.add_widget(self.image_generation_container)
+        self.bottom_navigation_layout.add_widget(
+            self.image_generation_container)
         self.bottom_navigation_layout.on_switch_tabs = self.switch_screens
         return self.bottom_navigation_layout
 
@@ -86,6 +104,7 @@ class ImageGenerationScreen(MDScreen):
         generation_layout.spacing = 50
         # Images Layout attributes
         images_layout = MDGridLayout()
+        images_layout.spacing = 15
         images_layout.cols = 1
         images_layout.rows = 2
         images_layout.size_hint = (0.5, 1)
@@ -115,7 +134,13 @@ class ImageGenerationScreen(MDScreen):
         self.negative_prompt.helper_text_mode = "on_error"
         # Image placeholder
         self.current_downloaded_image = AsyncImage(source="placeholder.png")
-        self.current_downloaded_image.size_hint = (1, 1)
+        self.current_downloaded_image.size_hint = (0.9, 0.9)
+        # Image wrapper
+        image_wrapper = MDGridLayout(cols=1, rows=1)
+        image_wrapper.spacing = 20
+        image_wrapper.line_color = "#7B7B7B"
+        image_wrapper.line_width = 5
+        image_wrapper.radius = 30
         # Open Path to output button
         self.output_button = MDRectangleFlatButton()
         self.output_button.padding = 20
@@ -126,9 +151,9 @@ class ImageGenerationScreen(MDScreen):
         self.start_button = MDFloatingActionButton()
         self.start_button.size = (65, 65)
         self.start_button.icon = "send-variant-outline"
-        self.start_button.md_bg_color = "#D9D9D9"
+        self.start_button.md_bg_color = "#000000"
         self.start_button.radius = 20
-        self.start_button.text_color = "#1E1E1E"
+        self.start_button.text_color = "#FFFFFF"
         self.start_button.on_press = self.generate_image_checks
         # Width input field
         self.width_textfield = MDTextField()
@@ -151,7 +176,8 @@ class ImageGenerationScreen(MDScreen):
             preview=True,
         )
         # assighning widgets to their's parents
-        images_layout.add_widget(self.current_downloaded_image)
+        image_wrapper.add_widget(self.current_downloaded_image)
+        images_layout.add_widget(image_wrapper)
         images_layout.add_widget(self.output_button)
         input_grid.add_widget(self.prompt_field)
         input_grid.add_widget(self.negative_prompt)
@@ -169,19 +195,21 @@ class ImageGenerationScreen(MDScreen):
                     width_check = int(self.width_textfield.text)
                     height_check = int(self.width_textfield.text)
                     if (width_check > 1024) or (height_check > 1024):
-                        toast("Image dimension must be lower than 1024")
+                        open_dialog_error(
+                            "Image dimension must be lower than 1024")
                         return None
                     elif (width_check < 0) or (height_check < 0):
-                        toast("Image dimension must be higher than 0")
+                        open_dialog_error(
+                            "Image dimension must be higher than 0")
                         return None
                     process = Thread(target=self.generate_image)
                     process.start()
                 except:
-                    toast("Width and height need to be numbers")
+                    open_dialog_error("Width and height need to be numbers")
             else:
-                toast("Choose download dirrectory")
+                open_dialog_error("Choose download dirrectory")
         else:
-            toast("Please input prompt")
+            open_dialog_error("Please input prompt")
 
     def generate_image(self):
         images_in_dir = [
@@ -215,6 +243,7 @@ class ImageGenerationScreen(MDScreen):
 
     def update_image(self, *args):
         self.current_downloaded_image.source = self.image_path
+        open_dialog_message('Image has been generated!')
 
     def file_manager_opener(self):
         self.manager_open = True
@@ -271,8 +300,10 @@ class MainScreen(MDScreen):
         )
         # cutout item
         self.checkboxes[check_list[1]] = [
-            MDTextField(hint_text="top left point [x, y]", size_hint=(0.35, 0.1)),
-            MDTextField(hint_text="bottom right point [x, y]", size_hint=(0.35, 0.1)),
+            MDTextField(
+                hint_text="top left point [x, y]", size_hint=(0.35, 0.1)),
+            MDTextField(
+                hint_text="bottom right point [x, y]", size_hint=(0.35, 0.1)),
         ]
         cutout_widget = transform_items_constructor(
             [
@@ -373,7 +404,7 @@ class MainScreen(MDScreen):
             check=True,
             column_data=[
                 ("№", dp(30)),
-                ("Title", dp(60)),
+                ("Title", dp(120)),
                 ("Resolution", dp(50)),
                 ("Format", dp(30)),
                 ("intact", dp(30)),
@@ -385,7 +416,8 @@ class MainScreen(MDScreen):
             pos_hint=(1, 1),
         )
         self.image_table.bind(on_check_press=self.on_check)
-        self.image_table.header.ids.check.bind(on_release=self.on_checkbox_active)
+        self.image_table.header.ids.check.bind(
+            on_release=self.on_checkbox_active)
         self.image_table.padding = 25
         # File manager definition and attributes
         self.manager_open = False
@@ -413,6 +445,7 @@ class MainScreen(MDScreen):
         start_button.size = (25, 25)
         start_button.font_size = 24
         start_button.text_color = "#FFFFFF"
+        start_button.md_bg_color = "#000000"
         start_button.padding = 10
         start_button.pos_hint = {"x": 0.8, "y": 0.5}
         start_button.on_press = self.start_processing
@@ -432,6 +465,10 @@ class MainScreen(MDScreen):
         transform_layout.add_widget(self.output_button)
         transform_layout.add_widget(start_button)
         self.add_widget(main_window_layout)
+
+    def open_dialog(self, *args):
+        message_text = 'Image editing is finished. Images are saved at '+self.images_unload_path
+        return open_dialog_message(message_text)
 
     def on_checkbox_active(self, cb):
         if cb.state == "normal":
@@ -492,27 +529,28 @@ class MainScreen(MDScreen):
                     temp_image = func[0](temp_image, *func[1])
                 result.append([temp_image, image[1].split("\\")[-1]])
             images_collecting.save_images(result, PATH=self.images_unload_path)
-            Clock.schedule_once(
-                toast("New images are saved at " + self.images_unload_path)
-            )
+            Clock.schedule_once(self.open_dialog)
         except:
-            toast(
-                "Error while converting images. Check the entered data for correctness."
-            )
+            raise ValueError
 
     def start_processing(self):
         if self.images_load_path and self.images_unload_path:
-            process = Thread(target=self.process_images)
-            process.start()
+            try:
+                process = Thread(target=self.process_images)
+                process.start()
+            except:
+                open_dialog_error(
+                    "Error while converting images. Check the entered data for correctness."
+                )
         else:
-            toast("You need to choose upload and import paths")
+            open_dialog_error("You need to choose upload and import paths")
 
     def load_images(self, path):
         new_images = images_collecting.read_images_attributes(path)
         if new_images:
             self.image_table.row_data = new_images
         else:
-            toast("No images inside of the choosen dirrectory")
+            open_dialog_error("No images inside of the choosen dirrectory")
 
     def file_manager_opener(self, is_input: bool):
         self.manager_open = True
