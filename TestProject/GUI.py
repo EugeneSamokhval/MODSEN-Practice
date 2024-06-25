@@ -131,15 +131,19 @@ class ImageGenerationScreen(MDScreen):
         self.negative_prompt.max_text_length = 1000
         self.negative_prompt.helper_text = "Maximal size of a prompt = 1000"
         self.negative_prompt.helper_text_mode = "on_error"
-        # Image placeholder
-        self.current_downloaded_image = AsyncImage(source="placeholder.png")
-        self.current_downloaded_image.size_hint = (0.9, 0.9)
         # Image wrapper
         image_wrapper = MDGridLayout(cols=1, rows=1)
         image_wrapper.spacing = 20
         image_wrapper.line_color = "#7B7B7B"
-        image_wrapper.line_width = 5
+        image_wrapper.line_width = 2
         image_wrapper.radius = 30
+        image_wrapper.padding = 10
+        image_wrapper.size = image_wrapper.minimum_size
+        # Image placeholder
+        self.current_downloaded_image = AsyncImage(source="placeholder.png")
+        self.current_downloaded_image.size_hint = (1, 1)
+        self.current_downloaded_image.allow_stretch = True
+        self.current_downloaded_image.keep_ratio = False
         # Open Path to output button
         self.output_button = MDRectangleFlatButton()
         self.output_button.padding = 20

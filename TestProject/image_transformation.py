@@ -2,19 +2,19 @@ import cv2
 import numpy as np
 
 
-def resize(image, width, height):
+def resize(image, width: int, height: int):
     return cv2.resize(image, (width, height), interpolation=cv2.INTER_LINEAR)
 
 
 def cutout(image, top_left: list, down_right: list):
-    return image[top_left[0] : down_right[0], top_left[1] : down_right[1]]
+    return image[top_left[0]: down_right[0], top_left[1]: down_right[1]]
 
 
-def flip(image, is_horisontal):
+def flip(image, is_horisontal: bool):
     return cv2.flip(image, is_horisontal)
 
 
-def rotate(image, center_of_rotation=None, angle=None):
+def rotate(image, center_of_rotation: int = None, angle: int = None):
     if not center_of_rotation:
         center_of_rotation = [i / 2 for i in image.shape[:2]]
     if not angle:
