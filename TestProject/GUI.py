@@ -21,7 +21,6 @@ from kivy.core.window import Window
 from kivymd.uix.button import (
     MDRectangleFlatButton,
     MDFloatingActionButton,
-    MDFlatButton,
 )
 from threading import Thread
 from kivymd.uix.dialog import MDDialog
