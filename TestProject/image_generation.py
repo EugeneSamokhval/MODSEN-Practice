@@ -66,7 +66,18 @@ class Text2ImageAPI:
             time.sleep(delay)
 
 
-def get_generated_image(prompt, negative_prompt, width=1024, height=1024):
+def get_generated_image(prompt: str, negative_prompt: str, width=1024, height=1024):
+    """Function of image generation (getting image from user input)
+
+    Args:
+        prompt (str): image generation prompt (thing you want to see on the image)
+        negative_prompt (str)):negative image generation prompt(thing you dont want to see  on the image)
+        width (int, optional): width of resulting image. Defaults to 1024.
+        height (int, optional): height of resulting image. Defaults to 1024.
+
+    Returns:
+        np.array: generated image
+    """
     api = Text2ImageAPI(
         "https://api-key.fusionbrain.ai/",
         "2FF286FA8F9A4E2027023510F6D31E38",

@@ -5,6 +5,7 @@ import images_collecting
 import os
 from kivy.clock import Clock
 from kivymd.uix.screen import MDScreen
+from kivymd.uix.tab import MDTabs
 from kivymd.uix.label import MDLabel
 from kivymd.uix.gridlayout import MDGridLayout
 from kivymd.uix.stacklayout import MDStackLayout
@@ -26,7 +27,15 @@ from threading import Thread
 from kivymd.uix.dialog import MDDialog
 
 
-def open_dialog_error(error_text):
+def open_dialog_error(error_text: str) -> None:
+    """function which creates and opens dialog window
+
+    Args:
+        error_text (str): Text which will be seen on the dialog window
+
+    Returns:
+        None: Opens pop up window without returning anything
+    """
     dialog_window = MDDialog()
     dialog_window.title = "Error"
     dialog_window.md_bg_color = "#2e0000"
@@ -34,7 +43,15 @@ def open_dialog_error(error_text):
     return dialog_window.open()
 
 
-def open_dialog_message(message_text):
+def open_dialog_message(message_text: str) -> None:
+    """function which creates and opens dialog window
+
+    Args:
+        message_text (str): Text which will be seen on the dialog window
+
+    Returns:
+        None: Opens pop up window without returning anything
+    """
     dialog_window = MDDialog()
     dialog_window.title = "Message"
     dialog_window.text = message_text
@@ -72,11 +89,26 @@ class App(MDApp):
         self.bottom_navigation_layout.on_switch_tabs = self.switch_screens
         return self.bottom_navigation_layout
 
-    def switch_screens(self, next_item, name):
+    def switch_screens(self, next_item: MDTabs, name: str):
+        """An dunction to switch between tabs using bottom navigation bar
+
+        Args:
+            next_item (MDTabs): link to the clicked tab
+            name (str): name of the tab
+        """
         self.bottom_navigation_layout.switch_tab(name)
 
 
 def transform_items_constructor(widgets: list, columns=3):
+    """Function for creation of similar transform checkbox included items
+
+    Args:
+        widgets (list): all the widgets for transfom item
+        columns (int, optional): number of widgets in transform item. Defaults to 3.
+
+    Returns:
+        MDGridLayout: an transform item widget
+    """
     result = MDGridLayout(cols=columns)
     result.size_hint = (None, None)
     result.size = (350, 65)
@@ -162,12 +194,18 @@ class ImageGenerationScreen(MDScreen):
         self.width_textfield = MDTextField()
         self.width_textfield.hint_text = "Width 1-1024"
         self.width_textfield.size_hint = (1, None)
+        self.width_textfield.required = True
+        self.width_textfield.helper_text_mode = "on_error"
+        self.width_textfield.helper_text = 'You need to input image\'s height'
         self.width_textfield.mode = "round"
         self.width_textfield.height = 30
         # Height unput field
         self.height_textfield = MDTextField()
         self.height_textfield.hint_text = "Height 1-1024"
         self.height_textfield.size_hint = (1, None)
+        self.height_textfield.required = True
+        self.height_textfield.helper_text = 'You need to input image\'s height'
+        self.height_textfield.helper_text_mode = "on_error"
         self.height_textfield.mode = "round"
         self.height_textfield.height = 30
         # File manager definition and attributes
@@ -192,6 +230,8 @@ class ImageGenerationScreen(MDScreen):
         self.add_widget(generation_layout)
 
     def generate_image_checks(self):
+        """Checks for correct input at generatin screen
+        """
         if self.prompt_field.text:
             if self.images_unload_path:
                 try:
@@ -214,7 +254,10 @@ class ImageGenerationScreen(MDScreen):
         else:
             open_dialog_error("Please input prompt")
 
-    def generate_image(self):
+    def generate_image(self) -> None:
+        """
+        Function which calls an image generating api and scheldues image update after download
+        """
         images_in_dir = [
             f
             for f in os.listdir(self.images_unload_path)
@@ -245,20 +288,31 @@ class ImageGenerationScreen(MDScreen):
         Clock.schedule_once(self.update_image)
 
     def update_image(self, *args):
+        """updates image on the screen after generation
+        """
         self.current_downloaded_image.source = self.image_path
         open_dialog_message('Image has been generated!')
 
     def file_manager_opener(self):
+        """opens file manager
+        """
         self.manager_open = True
         path = os.path.expanduser("C:\\")
         self.file_manager.show(path)
 
-    def select_path(self, path):
+    def select_path(self, path: str):
+        """When user selects exact path this function will save them
+        in buffer variable
+        Args:
+            path (str): chosen path
+        """
         self.exit_manager()
         self.images_unload_path = path
         self.output_button.text = path
 
     def exit_manager(self, *args):
+        """Closes file manager when called
+        """
         self.manager_open = False
         self.file_manager.close()
 
@@ -470,17 +524,32 @@ class MainScreen(MDScreen):
         self.add_widget(main_window_layout)
 
     def open_dialog(self, *args):
+        """
+        calls an open dialog function inside of a main thread
+        """
         message_text = 'Image editing is finished. Images are saved at '+self.images_unload_path
         return open_dialog_message(message_text)
 
-    def on_checkbox_active(self, cb):
+    def on_checkbox_active(self, cb: MDCheckbox):
+        """
+            Changes checkbox state to "unchecked" at custom checkbox container
+        Args:
+            cb (MDCheckbox): choosen checbox at the data table
+        """
         if cb.state == "normal":
             Clock.schedule_once(self.update_checks, 0)
 
     def on_check(self, instance, row_data):
+        """
+            Changes checkbox state to "checked" at custom checkbox container
+        Args:
+            cb (MDCheckbox): choosen checbox at the data table
+        """
         Clock.schedule_once(self.update_checks, 0)
 
     def update_checks(self, _):
+        """Upadates buffer in which all of the checked rows of datatables are stored
+        """
         self.my_selections = []
         table_data = self.image_table.table_data
         for page, selected_cells in table_data.current_selection_check.items():
@@ -492,6 +561,11 @@ class MainScreen(MDScreen):
                 self.my_selections.append(table_data.row_data[data_index][0])
 
     def calcute_to_do(self):
+        """Collects all the needed functions and their's parameters
+
+        Returns:
+            list: returns list of pairs where first ia function and second is parameters
+        """
         to_do_list = []
         all_functions = image_transformation.funct_list + image_posteffects.funct_list
         for func, key in zip(all_functions, self.checkboxes.keys()):
@@ -513,6 +587,10 @@ class MainScreen(MDScreen):
         return to_do_list
 
     def process_images(self):
+        """ Processing images and saving them
+        Raises:
+            ValueError: raises when there is an error in any of the input fields
+        """
         try:
             to_do_list = self.calcute_to_do()
             images = images_collecting.load_images(self.images_load_path)
@@ -537,6 +615,8 @@ class MainScreen(MDScreen):
             raise ValueError
 
     def start_processing(self):
+        """Check upload and import paths and calls processing function thread. Also catches value errors
+        """
         if self.images_load_path and self.images_unload_path:
             try:
                 process = Thread(target=self.process_images)
@@ -548,7 +628,11 @@ class MainScreen(MDScreen):
         else:
             open_dialog_error("You need to choose upload and import paths")
 
-    def load_images(self, path):
+    def load_images(self, path: str):
+        """loads data about images into a datatable
+        Args:
+            path (str): images import path
+        """
         new_images = images_collecting.read_images_attributes(path)
         if new_images:
             self.image_table.row_data = new_images
@@ -556,12 +640,22 @@ class MainScreen(MDScreen):
             open_dialog_error("No images inside of the choosen dirrectory")
 
     def file_manager_opener(self, is_input: bool):
+        """
+            Opens file mangager
+        Args:
+            is_input (bool): shows which path is being chosen input path or output path
+        """
         self.manager_open = True
         self.is_input = is_input
         path = os.path.expanduser("C:\\")
         self.file_manager.show(path)
 
-    def select_path(self, path):
+    def select_path(self, path: str):
+        """ Saves chosen path into a buffer
+
+        Args:
+            path (str): Chosen path
+        """
         self.exit_manager()
         if self.is_input:
             self.load_images(path)
@@ -573,12 +667,18 @@ class MainScreen(MDScreen):
         toast(path)
 
     def events(self, instance, keyboard, keycode, text, modifiers):
+        """Keyboard events handler
+
+        Args:
+            keyboard (int): index of pressed key
+        """
         if keyboard in (1001, 27) and self.manager_open:
             self.file_manager.back()
         elif keyboard == 27:
             quit()
-        return True
 
     def exit_manager(self, *args):
+        """Closes file manager
+        """
         self.manager_open = False
         self.file_manager.close()
