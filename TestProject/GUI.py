@@ -340,7 +340,7 @@ class MainScreen(MDScreen):
         transform_layout.spacing = 10
         # Checkboxes container
         self.checkboxes = dict()
-        check_list = [MDCheckbox(size_hint=(0.1, 0.1)) for i in range(9)]
+        check_list = [MDCheckbox(size_hint=(0.1, 0.1)) for i in range(10)]
         # Resize item
         self.checkboxes[check_list[0]] = [
             MDTextField(hint_text="width", size_hint=(0.35, 0.08)),
@@ -454,7 +454,19 @@ class MainScreen(MDScreen):
                 self.checkboxes.get(check_list[8])[0],
             ]
         )
-
+        # random cropping
+        self.checkboxes[check_list[9]] = [
+            MDTextField(hint_text="crop width", size_hint=(0.35, 0.1)),
+            MDTextField(hint_text="crop height", size_hint=(0.35, 0.1))
+        ]
+        crop_widget = transform_items_constructor(
+            [
+                check_list[9],
+                MDLabel(text="Rand Crop", size_hint=(0.15, 0.1)),
+                self.checkboxes.get(check_list[9])[0],
+                self.checkboxes.get(check_list[9])[1]
+            ], columns=4
+        )
         # Table of images and their's attributes
         self.image_table = MDDataTable(
             use_pagination=True,
@@ -516,6 +528,7 @@ class MainScreen(MDScreen):
         transform_layout.add_widget(contrast_widget)
         transform_layout.add_widget(noise_widget)
         transform_layout.add_widget(saturation_widget)
+        transform_layout.add_widget(crop_widget)
         main_window_layout.add_widget(self.image_table)
         main_window_layout.add_widget(transform_layout)
         transform_layout.add_widget(self.input_button)

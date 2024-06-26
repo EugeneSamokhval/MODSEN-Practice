@@ -82,6 +82,5 @@ def shift(image: np.array, x_shift: int, y_shift: int):
     shifted = cv2.warpAffine(image, M, (image.shape[1], image.shape[0]))
     return shifted
 
-
-# Functions positioning is needed to be with the same lineup as in self.switches variable of interface
+    # Functions positioning is needed to be with the same lineup as in self.switches variable of interface
 funct_list = [resize, cutout, flip, rotate, shift]

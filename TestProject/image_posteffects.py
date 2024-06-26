@@ -64,5 +64,24 @@ def contrast(image: np.array, change_scale: int):
     return adjusted_image
 
 
+def random_crops(image: np.array, crop_width: int, crop_height: int):
+    """Cut random part of image out of it
+
+    Args:
+        image (np.array): cropable 
+        crop_width (int): width of resulting image
+        crop_height (int): height of resulting image
+
+    Returns:
+        np.arrray: cropped image
+    """
+    image_height, image_width = image.shape[:2]
+    start_x = np.random.randint(0, image_width - crop_width)
+    start_y = np.random.randint(0, image_height - crop_height)
+    cropped_image = image[start_y:start_y +
+                          crop_height, start_x:start_x + crop_width]
+    return cropped_image
+
+
 # Functions positioning is needed to be with the same lineup as in self.switches variable of interface
-funct_list = [brightness, contrast, noise, saturation]
+funct_list = [brightness, contrast, noise, saturation, random_crops]
