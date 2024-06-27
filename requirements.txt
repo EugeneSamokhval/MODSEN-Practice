@@ -1,0 +1,4 @@
+kivymd
+opencv-python
+numpy
+requests
