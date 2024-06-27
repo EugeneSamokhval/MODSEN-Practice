@@ -45,8 +45,7 @@ def noise(image: np.array, noise_scale: int):
         np.array: image after adding a noise
     """
     mean = 0
-    stddev = noise_scale
-    noise = np.random.normal(mean, stddev, image.shape).astype(np.uint8)
+    noise = np.random.normal(mean, noise_scale, image.shape).astype(np.uint8)
     return cv2.add(image, noise)
 
 
@@ -54,13 +53,13 @@ def contrast(image: np.array, change_scale: int):
     """Changes brightness of an image
 
     Args:
-        image (np.array): _description_
-        change_scale (int): _description_
+        image (np.array): numpy array containing image data
+        change_scale (int): how much image contrast will change
 
     Returns:
         np.array: image after processing
     """
-    adjusted_image = cv2.convertScaleAbs(image, alpha=change_scale)
+    adjusted_image = cv2.convertScaleAbs(image, alpha=1+(change_scale/256))
     return adjusted_image
 
 
@@ -68,7 +67,7 @@ def random_crops(image: np.array, crop_width: int, crop_height: int):
     """Cut random part of image out of it
 
     Args:
-        image (np.array): cropable 
+        image (np.array): cropable
         crop_width (int): width of resulting image
         crop_height (int): height of resulting image
 
@@ -78,8 +77,9 @@ def random_crops(image: np.array, crop_width: int, crop_height: int):
     image_height, image_width = image.shape[:2]
     start_x = np.random.randint(0, image_width - crop_width)
     start_y = np.random.randint(0, image_height - crop_height)
-    cropped_image = image[start_y:start_y +
-                          crop_height, start_x:start_x + crop_width]
+    cropped_image = image[
+        start_y: start_y + crop_height, start_x: start_x + crop_width
+    ]
     return cropped_image
 
 

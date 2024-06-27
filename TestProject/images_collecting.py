@@ -4,7 +4,7 @@ from PIL import Image
 
 
 def get_images_by_dir(PATH: str):
-    """_summary_
+    """Get path to every image in dirrectory
 
     Args:
         PATH (str): path to the directory containing images
@@ -51,8 +51,7 @@ def read_images_attributes(PATH: str):
                     )
                 )
         except IOError:
-            data_container.append(
-                (str(counter), name, "Unknown", "Unknown", str(0)))
+            data_container.append((str(counter), name, "Unknown", "Unknown", str(0)))
         counter += 1
     return data_container
 

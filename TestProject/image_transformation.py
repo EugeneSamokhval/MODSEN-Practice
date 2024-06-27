@@ -30,12 +30,12 @@ def cutout(image, top_left: list, down_right: list):
     return image[top_left[0]: down_right[0], top_left[1]: down_right[1]]
 
 
-def flip(image: np.array, is_horisontal: bool):
+def flip(image: np.array, is_horisontal: int):
     """Flip image
 
     Args:
         image (np.array): editable image
-        is_horisontal (bool): flip orientation
+        is_horisontal (int): flip orientation
 
     Returns:
         np.array: flipped image
@@ -44,7 +44,7 @@ def flip(image: np.array, is_horisontal: bool):
 
 
 def rotate(image: np.array, center_of_rotation: int = None, angle: int = None):
-    """Rotate image 
+    """Rotate image
 
     Args:
         image (np.array): rotatable image
@@ -52,7 +52,7 @@ def rotate(image: np.array, center_of_rotation: int = None, angle: int = None):
         angle (int, optional): angle of rotation. Defaults to None.
 
     Returns:
-        np.array: rotated image 
+        np.array: rotated image
     """
     if not center_of_rotation:
         center_of_rotation = [i / 2 for i in image.shape[:2]]
@@ -83,4 +83,6 @@ def shift(image: np.array, x_shift: int, y_shift: int):
     return shifted
 
     # Functions positioning is needed to be with the same lineup as in self.switches variable of interface
+
+
 funct_list = [resize, cutout, flip, rotate, shift]

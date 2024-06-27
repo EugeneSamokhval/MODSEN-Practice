@@ -196,7 +196,7 @@ class ImageGenerationScreen(MDScreen):
         self.width_textfield.size_hint = (1, None)
         self.width_textfield.required = True
         self.width_textfield.helper_text_mode = "on_error"
-        self.width_textfield.helper_text = 'You need to input image\'s height'
+        self.width_textfield.helper_text = "You need to input image's height"
         self.width_textfield.mode = "round"
         self.width_textfield.height = 30
         # Height unput field
@@ -204,7 +204,7 @@ class ImageGenerationScreen(MDScreen):
         self.height_textfield.hint_text = "Height 1-1024"
         self.height_textfield.size_hint = (1, None)
         self.height_textfield.required = True
-        self.height_textfield.helper_text = 'You need to input image\'s height'
+        self.height_textfield.helper_text = "You need to input image's height"
         self.height_textfield.helper_text_mode = "on_error"
         self.height_textfield.mode = "round"
         self.height_textfield.height = 30
@@ -230,8 +230,7 @@ class ImageGenerationScreen(MDScreen):
         self.add_widget(generation_layout)
 
     def generate_image_checks(self):
-        """Checks for correct input at generatin screen
-        """
+        """Checks for correct input at generatin screen"""
         if self.prompt_field.text:
             if self.images_unload_path:
                 try:
@@ -288,14 +287,12 @@ class ImageGenerationScreen(MDScreen):
         Clock.schedule_once(self.update_image)
 
     def update_image(self, *args):
-        """updates image on the screen after generation
-        """
+        """updates image on the screen after generation"""
         self.current_downloaded_image.source = self.image_path
-        open_dialog_message('Image has been generated!')
+        open_dialog_message("Image has been generated!")
 
     def file_manager_opener(self):
-        """opens file manager
-        """
+        """opens file manager"""
         self.manager_open = True
         path = os.path.expanduser("C:\\")
         self.file_manager.show(path)
@@ -311,8 +308,7 @@ class ImageGenerationScreen(MDScreen):
         self.output_button.text = path
 
     def exit_manager(self, *args):
-        """Closes file manager when called
-        """
+        """Closes file manager when called"""
         self.manager_open = False
         self.file_manager.close()
 
@@ -457,15 +453,16 @@ class MainScreen(MDScreen):
         # random cropping
         self.checkboxes[check_list[9]] = [
             MDTextField(hint_text="crop width", size_hint=(0.35, 0.1)),
-            MDTextField(hint_text="crop height", size_hint=(0.35, 0.1))
+            MDTextField(hint_text="crop height", size_hint=(0.35, 0.1)),
         ]
         crop_widget = transform_items_constructor(
             [
                 check_list[9],
                 MDLabel(text="Rand Crop", size_hint=(0.15, 0.1)),
                 self.checkboxes.get(check_list[9])[0],
-                self.checkboxes.get(check_list[9])[1]
-            ], columns=4
+                self.checkboxes.get(check_list[9])[1],
+            ],
+            columns=4,
         )
         # Table of images and their's attributes
         self.image_table = MDDataTable(
@@ -540,7 +537,9 @@ class MainScreen(MDScreen):
         """
         calls an open dialog function inside of a main thread
         """
-        message_text = 'Image editing is finished. Images are saved at '+self.images_unload_path
+        message_text = (
+            "Image editing is finished. Images are saved at " + self.images_unload_path
+        )
         return open_dialog_message(message_text)
 
     def on_checkbox_active(self, cb: MDCheckbox):
@@ -561,8 +560,7 @@ class MainScreen(MDScreen):
         Clock.schedule_once(self.update_checks, 0)
 
     def update_checks(self, _):
-        """Upadates buffer in which all of the checked rows of datatables are stored
-        """
+        """Upadates buffer in which all of the checked rows of datatables are stored"""
         self.my_selections = []
         table_data = self.image_table.table_data
         for page, selected_cells in table_data.current_selection_check.items():
@@ -600,7 +598,7 @@ class MainScreen(MDScreen):
         return to_do_list
 
     def process_images(self):
-        """ Processing images and saving them
+        """Processing images and saving them
         Raises:
             ValueError: raises when there is an error in any of the input fields
         """
@@ -628,8 +626,7 @@ class MainScreen(MDScreen):
             raise ValueError
 
     def start_processing(self):
-        """Check upload and import paths and calls processing function thread. Also catches value errors
-        """
+        """Check upload and import paths and calls processing function thread. Also catches value errors"""
         if self.images_load_path and self.images_unload_path:
             try:
                 process = Thread(target=self.process_images)
@@ -664,7 +661,7 @@ class MainScreen(MDScreen):
         self.file_manager.show(path)
 
     def select_path(self, path: str):
-        """ Saves chosen path into a buffer
+        """Saves chosen path into a buffer
 
         Args:
             path (str): Chosen path
@@ -691,7 +688,6 @@ class MainScreen(MDScreen):
             quit()
 
     def exit_manager(self, *args):
-        """Closes file manager
-        """
+        """Closes file manager"""
         self.manager_open = False
         self.file_manager.close()
