@@ -2,6 +2,7 @@ import image_generation
 import image_posteffects
 import image_transformation
 import images_collecting
+import images_overlay
 import os
 from kivy.clock import Clock
 from kivymd.uix.screen import MDScreen
@@ -25,6 +26,7 @@ from kivymd.uix.button import (
 )
 from threading import Thread
 from kivymd.uix.dialog import MDDialog
+from kivymd.uix.menu import MDDropdownMenu
 
 
 def open_dialog_error(error_text: str) -> None:
@@ -80,12 +82,19 @@ class App(MDApp):
         self.image_generation_container.name = "Generation"
         self.image_generation_container.icon = "image-auto-adjust"
         self.image_generation_container.text = "Generation"
+        # overlay window bottom navigation tab description
+        self.image_overlay_container = MDBottomNavigationItem()
+        self.image_overlay_container.name = "Overlay"
+        self.image_overlay_container.icon = 'image-multiple-outline'
+        self.image_overlay_container.text = 'Overlay'
         # assighning widgets to their's parents
         self.main_window_container.add_widget(MainScreen())
         self.image_generation_container.add_widget(ImageGenerationScreen())
+        self.image_overlay_container.add_widget(ImageOverlayScreen())
         self.bottom_navigation_layout.add_widget(self.main_window_container)
         self.bottom_navigation_layout.add_widget(
             self.image_generation_container)
+        self.bottom_navigation_layout.add_widget(self.image_overlay_container)
         self.bottom_navigation_layout.on_switch_tabs = self.switch_screens
         return self.bottom_navigation_layout
 
@@ -119,6 +128,277 @@ def transform_items_constructor(widgets: list, columns=3):
     for widget in widgets:
         result.add_widget(widget)
     return result
+
+
+class ImageOverlayScreen(MDScreen):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Buffer variables
+        self.images_load_path = ""
+        self.overlay_image = ""
+        self.images_save_path = ""
+        self.current_font_path = ""
+        self.current_index = 0
+        self.image_paths_list = []
+        # Image overlay windows layout
+        overlay_layout = MDGridLayout()
+        overlay_layout.cols = 2
+        overlay_layout.rows = 2
+        overlay_layout.size_hint = (1, 1)
+        overlay_layout.md_bg_color = "#1E1E1E"
+        overlay_layout.spacing = 50
+        # Image wrapper
+        image_wrapper = MDGridLayout(cols=1, rows=1)
+        image_wrapper.spacing = 20
+        image_wrapper.line_color = "#7B7B7B"
+        image_wrapper.line_width = 2
+        image_wrapper.radius = 30
+        image_wrapper.padding = 10
+        image_wrapper.size_hint = (0.5, 0.5)
+        image_wrapper.size = image_wrapper.minimum_size
+        # Current image widget
+        self.current_image = AsyncImage()
+        self.current_image.size = (800, 800)
+        self.current_image.source = "placeholder.png"
+        self.current_image.allow_stretch = True
+        self.current_image.keep_ratio = False
+        # Navigation buttons layout
+        navigation_buttons_layout = MDGridLayout()
+        navigation_buttons_layout.cols = 2
+        navigation_buttons_layout.rows = 1
+        navigation_buttons_layout.size = (120, 70)
+        navigation_buttons_layout.size_hint = (None, None)
+        navigation_buttons_layout.spacing = 10
+        # Navigation left button
+        self.left_nav_button = MDFloatingActionButton()
+        self.left_nav_button.size = (50, 50)
+        self.left_nav_button.line_color = "#7B7B7B"
+        self.left_nav_button.line_width = 2
+        self.left_nav_button.md_bg_color = '#1E1E1E'
+        self.left_nav_button.text_color = "#7B7B7B"
+        self.left_nav_button.icon = 'arrow-left-bold-outline'
+        self.left_nav_button.on_press = self.next_image_left
+        # Navigation right button
+        self.right_nav_button = MDFloatingActionButton()
+        self.right_nav_button.size = (50, 50)
+        self.right_nav_button.line_color = "#7B7B7B"
+        self.right_nav_button.line_width = 2
+        self.right_nav_button.md_bg_color = '#1E1E1E'
+        self.right_nav_button.text_color = "#7B7B7B"
+        self.right_nav_button.icon = 'arrow-right-bold-outline'
+        self.right_nav_button.on_press = self.next_image_right
+        # User input layout
+        user_input_layout = MDGridLayout(cols=1, rows=5)
+        user_input_layout.size_hint = (0.4, 1)
+        user_input_layout.spacing = 50
+        # Image overlay check box
+        self.is_image_overlay = MDCheckbox()
+        self.is_image_overlay.size = (50, 60)
+        self.is_image_overlay.size_hint = (None, None)
+        # Image overlay x position text field
+        self.image_x_pos = MDTextField(
+            hint_text="x position", size_hint=(0.35, 0.1))
+        # Image overlay y position text field
+        self.image_y_pos = MDTextField(
+            hint_text="y position", size_hint=(0.35, 0.1))
+        # Image overlay path opening button
+        self.overlay_input_button = MDRectangleFlatButton()
+        self.overlay_input_button.padding = 20
+        self.overlay_input_button.size_hint = (0.1, 0.05)
+        self.overlay_input_button.text = "Choose image to overlay"
+        self.overlay_input_button.on_press = lambda: self.file_manager_opener(
+            'Over')
+        # Image overlay item
+        image_overlay_item = transform_items_constructor([self.is_image_overlay, MDLabel(
+            text="Image overlay", size_hint=(0.2, 0.1)), self.overlay_input_button, self.image_x_pos, self.image_y_pos], columns=5)
+        image_overlay_item.size_hint = (1, None)
+        # Text overlay check box
+        self.is_text_overlay = MDCheckbox()
+        self.is_text_overlay.size = (50, 60)
+        self.is_text_overlay.size_hint = (None, None)
+        # Text overlay x position text field
+        self.text_x_pos = MDTextField(
+            hint_text="x position", size_hint=(0.35, 0.1))
+        # Text overlay x position text field
+        self.text_y_pos = MDTextField(
+            hint_text="y position", size_hint=(0.35, 0.1))
+        # Text overlay font choise button
+        self.font_choise_button = MDRectangleFlatButton()
+        self.font_choise_button.padding = 20
+        self.font_choise_button.size_hint = (1, 1)
+        self.font_choise_button.font_style = 'Button'
+        self.font_choise_button.text = "Choose overlay font"
+        self.font_choise_button.on_press = lambda: self.fonts_dropdown_menu.open()
+        # Text overlay item decription
+        text_overlay_item = transform_items_constructor([self.is_text_overlay, MDLabel(
+            text="Text overlay", size_hint=(0.2, 0.1)), self.font_choise_button, self.text_x_pos, self.text_y_pos], columns=5)
+        text_overlay_item.size_hint = (1, None)
+        # Text overlay input box
+        self.prompt_field = MDTextField()
+        self.prompt_field.mode = "rectangle"
+        self.prompt_field.hint_text = "Positive prompt"
+        self.prompt_field.size_hint = (0.45, 0.15)
+        self.prompt_field.multiline = True
+        self.prompt_field.helper_text_mode = "on_error"
+        self.prompt_field.required = True
+        # Dropdown menu description
+        self.fonts_dropdown_menu = MDDropdownMenu()
+        self.fill_dropdown_menu()
+        self.fonts_dropdown_menu.caller = self.font_choise_button
+        # process all images layout
+        all_selected_layout = MDGridLayout()
+        all_selected_layout.size_hint = (None, None)
+        all_selected_layout.cols = 2
+        all_selected_layout.rows = 1
+        # Process all images checkbox
+        self.all_selected_checkbox = MDCheckbox()
+        self.all_selected_checkbox.size = (50, 50)
+        self.all_selected_checkbox.size_hint = (None, None)
+        # Process all images label
+        all_selected_label = MDLabel()
+        all_selected_label.size_hint = (None, None)
+        all_selected_label.size = (350, 40)
+        all_selected_label.text = "Save changes for all images?"
+        # Path choise layout description
+        paths_layout = MDGridLayout()
+        paths_layout.size_hint = (0.5, 0.05)
+        paths_layout.spacing = 50
+        paths_layout.cols = 2
+        paths_layout.rows = 1
+        # Open Path to Input button
+        self.input_button = MDRectangleFlatButton()
+        self.input_button.padding = 20
+        self.input_button.size_hint = (0.1, 0.05)
+        self.input_button.text = "Choose input path"
+        self.input_button.on_press = lambda: self.file_manager_opener('Inp')
+        # Open path to output button
+        self.output_button = MDRectangleFlatButton()
+        self.output_button.padding = 20
+        self.output_button.size_hint = (0.1, 0.05)
+        self.output_button.text = "Choose output path"
+        self.output_button.on_press = lambda: self.file_manager_opener('Out')
+        # File manager definition and attributes
+        self.manager_open = False
+        self.manager_mode = ''
+        self.file_manager = MDFileManager(
+            exit_manager=self.exit_manager,
+            select_path=self.select_path,
+            ext=[],
+            preview=True,
+        )
+        # Start processing button
+        start_button = MDFloatingActionButton()
+        start_button.icon = "send-variant-outline"
+        start_button.size = (25, 25)
+        start_button.font_size = 24
+        start_button.text_color = "#FFFFFF"
+        start_button.md_bg_color = "#000000"
+        start_button.padding = 10
+        start_button.pos_hint = {"x": 0.8, "y": 0.5}
+        start_button.on_press = self.start_processing
+        # Add widgtets to their's parents
+        all_selected_layout.add_widget(self.all_selected_checkbox)
+        all_selected_layout.add_widget(all_selected_label)
+        paths_layout.add_widget(self.input_button)
+        paths_layout.add_widget(self.output_button)
+        user_input_layout.add_widget(image_overlay_item)
+        user_input_layout.add_widget(text_overlay_item)
+        user_input_layout.add_widget(self.prompt_field)
+        user_input_layout.add_widget(all_selected_layout)
+        user_input_layout.add_widget(start_button)
+        navigation_buttons_layout.add_widget(self.left_nav_button)
+        navigation_buttons_layout.add_widget(self.right_nav_button)
+        image_wrapper.add_widget(self.current_image)
+        overlay_layout.add_widget(image_wrapper)
+        overlay_layout.add_widget(user_input_layout)
+        overlay_layout.add_widget(navigation_buttons_layout)
+        overlay_layout.add_widget(paths_layout)
+        self.add_widget(overlay_layout)
+
+    def next_image_left(self) -> None:
+        if self.current_index > 0:
+            self.current_index -= 1
+            self.current_image.source = self.image_paths_list[self.current_index]
+
+    def next_image_right(self) -> None:
+        if self.current_index < len(self.image_paths_list)-2:
+            self.current_index += 1
+            self.current_image.source = self.image_paths_list[self.current_index]
+
+    def start_processing(self) -> None:
+        process = Thread(target=self.add_font_or_text)
+        process.start()
+
+    def add_font_or_text(self):
+        pass
+
+    def fill_dropdown_menu(self):
+        self.fonts_dropdown_menu.items = [
+            {"text": name, "on_release": lambda name=name: self.set_current_font(name)} for name in images_overlay.load_fonts_names()]
+
+    def set_current_font(self, name: str):
+        try:
+            all_paths = images_overlay.load_fonts()
+            self.current_font_path = list(filter(
+                lambda string: name in string, all_paths))[0]
+            self.font_choise_button.text = name
+            self.fonts_dropdown_menu.dismiss()
+        except:
+            open_dialog_error(
+                "This font is no longer presented in fonts dirrectory")
+
+    def file_manager_opener(self, mode: str):
+        """Opens file manager
+        Args:
+            mode (str): shows where to write result of manager work
+        """
+        self.manager_mode = mode
+        self.manager_open = True
+        path = os.path.expanduser("C:\\")
+        self.file_manager.show(path)
+
+    def select_path(self, path: str):
+        """Saves chosen path into a buffer
+
+        Args:
+            path (str): Chosen path
+        """
+        self.exit_manager()
+        if self.manager_mode == 'Inp':
+            self.load_images(path)
+            self.input_button.text = path
+            self.images_load_path = path
+        elif self.manager_mode == 'Out':
+            self.images_save_path = path
+            self.output_button.text = path
+        elif self.manager_mode == 'Over':
+            is_image = False
+            for defintion in ['.png', '.jpg', '.jpeg', '.bmp']:
+                if defintion in path:
+                    self.overlay_input_button.text = path.split('\\')[-1]
+                    self.overlay_image = path
+                    is_image = True
+                    break
+            if not is_image:
+                open_dialog_error('You need to chose image')
+        toast(path)
+
+    def exit_manager(self, *args):
+        """Closes file manager when called"""
+        self.manager_open = False
+        self.file_manager.close()
+
+    def load_images(self, path: str):
+        """loads data about images into a buffer
+        Args:
+            path (str): images import path
+        """
+        new_images = images_collecting.get_images_by_dir(path)
+        if new_images:
+            self.image_paths_list = new_images
+            self.current_image.source = new_images[0]
+        else:
+            open_dialog_error("No images inside of the choosen dirrectory")
 
 
 class ImageGenerationScreen(MDScreen):
@@ -623,7 +903,9 @@ class MainScreen(MDScreen):
             images_collecting.save_images(result, PATH=self.images_unload_path)
             Clock.schedule_once(self.open_dialog)
         except:
-            raise ValueError
+            open_dialog_error(
+                "Error while converting images. Check the entered data for correctness."
+            )
 
     def start_processing(self):
         """Check upload and import paths and calls processing function thread. Also catches value errors"""

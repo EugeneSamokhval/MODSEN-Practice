@@ -51,7 +51,8 @@ def read_images_attributes(PATH: str):
                     )
                 )
         except IOError:
-            data_container.append((str(counter), name, "Unknown", "Unknown", str(0)))
+            data_container.append(
+                (str(counter), name, "Unknown", "Unknown", str(0)))
         counter += 1
     return data_container
 
@@ -74,10 +75,21 @@ def load_images(PATH: str):
         PATH (str):  path to the load directory
 
     Returns:
-        lsit: Contains all of the loaded images
+        list: Contains all of the loaded images with their path
     """
     file_paths = get_images_by_dir(PATH)
     images_container = [
         [cv2.imread(img_path, cv2.IMREAD_ANYCOLOR), img_path] for img_path in file_paths
     ]
     return [image for image in images_container if image]
+
+
+def load_exact_image(PATH: str):
+    """Loads exact image in cv2 format
+
+    Args:
+        PATH (str): full path to an image
+    Returns:
+        image in cv2 format
+    """
+    return cv2.imread(PATH)
