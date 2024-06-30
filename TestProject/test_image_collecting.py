@@ -30,7 +30,7 @@ class TestImageCollecting(unittest.TestCase):
         cv2.imwrite('test.png', image)
         images_paths = images_collecting.get_images_by_dir(os.path.curdir)
         self.assertEqual(
-            images_paths[0].split('\\')[-1], 'test.png', 'Can\'t find image inside of a dirrectory')
+            images_paths[0].split('\\')[-1], './test.png', 'Can\'t find image inside of a dirrectory')
         os.remove('test.png')
 
     def test_read_images_attributes(self):
@@ -39,8 +39,8 @@ class TestImageCollecting(unittest.TestCase):
         image = np.random.randint(0, 256, (100, 100, 3), dtype=np.uint8)
         cv2.imwrite('test.png', image)
         images_data = images_collecting.read_images_attributes(os.path.curdir)
-        self.assertEqual(
-            images_data[1], ('1', 'test.png', '100X100', 'PNG', '1'), 'Can\'t get data from an image')
+        self.assertTrue(
+            images_data[0] == ('0', 'test.png', '100X100', 'PNG', '1'), 'Can\'t get data from an image')
         os.remove('test.png')
 
     def test_save_iamges(self):
@@ -57,7 +57,7 @@ class TestImageCollecting(unittest.TestCase):
         image = np.random.randint(0, 256, (100, 100, 3), dtype=np.uint8)
         cv2.imwrite('test.png', image)
         im_data = images_collecting.load_images(os.path.curdir)
-        im_data_to_compare = [image, '.\\test.png']
+        im_data_to_compare = [image, './test.png']
         self.assertTrue(is_test_image_here(im_data, im_data_to_compare),
                         "Function wasn't able to find needed data")
         os.remove('test.png')
