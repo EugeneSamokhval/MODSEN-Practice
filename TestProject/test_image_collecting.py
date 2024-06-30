@@ -54,6 +54,8 @@ class TestImageCollecting(unittest.TestCase):
         """
         image = np.random.randint(0, 256, (100, 100, 3), dtype=np.uint8)
         images_collecting.save_images([(image, 'test.png')], os.path.curdir)
+        print([image_show for image_show in os.listdir(
+            os.curdir) if os.path.isfile(image_show)])
         self.assertTrue(open('test.png', 'r'), 'Image wasn\'t saved correctly')
         os.remove('test.png')
 
