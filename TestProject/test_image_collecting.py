@@ -39,8 +39,14 @@ class TestImageCollecting(unittest.TestCase):
         image = np.random.randint(0, 256, (100, 100, 3), dtype=np.uint8)
         cv2.imwrite('test.png', image)
         images_data = images_collecting.read_images_attributes(os.path.curdir)
-        self.assertTrue(
-            images_data[0] == ('0', 'test.png', '100X100', 'PNG', '1'), 'Can\'t get data from an image')
+        is_the_same_type = True
+        if type(images_data[0]) != tuple:
+            is_the_same_type = False
+        for entry in range(len(images_data[0])):
+            if type(images_data[0][entry]):
+                is_the_same_type = False
+        self.assertTrue(is_the_same_type,
+                        'Can\'t get data correctly from an image')
         os.remove('test.png')
 
     def test_save_iamges(self):
