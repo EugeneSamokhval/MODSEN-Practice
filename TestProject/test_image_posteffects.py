@@ -1,5 +1,4 @@
 import image_posteffects
-import albumentations as A
 import numpy as np
 import unittest
 import cv2
