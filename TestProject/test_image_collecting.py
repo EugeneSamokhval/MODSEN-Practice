@@ -43,7 +43,7 @@ class TestImageCollecting(unittest.TestCase):
         if type(images_data[0]) != tuple:
             is_the_same_type = False
         for entry in range(len(images_data[0])):
-            if type(images_data[0][entry]):
+            if type(images_data[0][entry]) != str:
                 is_the_same_type = False
         self.assertTrue(is_the_same_type,
                         'Can\'t get data correctly from an image')
