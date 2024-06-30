@@ -56,7 +56,8 @@ class TestImageCollecting(unittest.TestCase):
         images_collecting.save_images([(image, 'test.png')], os.path.curdir)
         print([image_show for image_show in os.listdir(
             os.curdir) if os.path.isfile(image_show)])
-        self.assertTrue(open('test.png', 'r'), 'Image wasn\'t saved correctly')
+        self.assertTrue(open('.\\test.png', 'r'),
+                        'Image wasn\'t saved correctly')
         os.remove('test.png')
 
     def test_load_images(self):
