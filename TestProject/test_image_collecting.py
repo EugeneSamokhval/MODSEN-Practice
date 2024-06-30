@@ -27,21 +27,21 @@ class TestImageCollecting(unittest.TestCase):
         """Test cases for funtion which finds images paths
         """
         image = np.random.randint(0, 256, (100, 100, 3), dtype=np.uint8)
-        cv2.imwrite('Get_path_test.png', image)
+        cv2.imwrite('test.png', image)
         images_paths = images_collecting.get_images_by_dir(os.path.curdir)
         self.assertEqual(
-            images_paths[0].split('\\')[-1], 'Get_path_test.png', 'Can\'t find image inside of a dirrectory')
-        os.remove('Get_path_test.png')
+            images_paths[0].split('\\')[-1], 'test.png', 'Can\'t find image inside of a dirrectory')
+        os.remove('test.png')
 
     def test_read_images_attributes(self):
         """Test cases for function which finds images data
         """
         image = np.random.randint(0, 256, (100, 100, 3), dtype=np.uint8)
-        cv2.imwrite('read_data.png', image)
+        cv2.imwrite('test.png', image)
         images_data = images_collecting.read_images_attributes(os.path.curdir)
         self.assertEqual(
-            images_data[1], ('1', 'read_data.png', '100X100', 'PNG', '1'), 'Can\'t get data from an image')
-        os.remove('read_data.png')
+            images_data[1], ('1', 'test.png', '100X100', 'PNG', '1'), 'Can\'t get data from an image')
+        os.remove('test.png')
 
     def test_save_iamges(self):
         """Test cases for funtion which saves list of images
