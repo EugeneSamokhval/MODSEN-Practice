@@ -3,6 +3,7 @@ import image_posteffects
 import image_transformation
 import images_collecting
 import images_overlay
+from typing import Union
 import os
 from kivy.clock import Clock
 from kivymd.uix.screen import MDScreen
@@ -27,6 +28,7 @@ from kivymd.uix.button import (
 from threading import Thread
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.menu import MDDropdownMenu
+from kivymd.uix.pickers import MDColorPicker
 
 
 def open_dialog_error(error_text: str) -> None:
@@ -140,6 +142,7 @@ class ImageOverlayScreen(MDScreen):
         self.current_font_path = ""
         self.current_index = 0
         self.image_paths_list = []
+        self.font_color = list()
         # Image overlay windows layout
         overlay_layout = MDGridLayout()
         overlay_layout.cols = 2
@@ -217,26 +220,50 @@ class ImageOverlayScreen(MDScreen):
         self.is_text_overlay.size = (50, 60)
         self.is_text_overlay.size_hint = (None, None)
         # Text overlay x position text field
-        self.text_x_pos = MDTextField(
-            hint_text="x position", size_hint=(0.35, 0.1))
+        self.text_x_pos = MDTextField(size=(200, 70), padding=25,
+                                      hint_text="x position", size_hint=(None, None))
         # Text overlay x position text field
-        self.text_y_pos = MDTextField(
-            hint_text="y position", size_hint=(0.35, 0.1))
+        self.text_y_pos = MDTextField(size=(200, 70), padding=25,
+                                      hint_text="y position", size_hint=(None, None))
         # Text overlay font choise button
         self.font_choise_button = MDRectangleFlatButton()
         self.font_choise_button.padding = 20
-        self.font_choise_button.size_hint = (1, 1)
+        self.font_choise_button.size_hint = (None, None)
+        self.font_choise_button.size = (200, 70)
         self.font_choise_button.font_style = 'Button'
         self.font_choise_button.text = "Choose overlay font"
         self.font_choise_button.on_press = lambda: self.fonts_dropdown_menu.open()
+        # Font size input field
+        self.font_size_input_box = MDTextField(
+            size=(200, 70), padding=25,
+            hint_text="font size", size_hint=(None, None))
+        # Font colorpicker
+        self.font_colorpicker = MDColorPicker(
+            size_hint=(0.45, 0.85)
+        )
+        self.font_colorpicker.on_release = self.on_colorpicker_press
+        # Open font colorpicker button
+        self.font_colorpicker_button = MDFloatingActionButton(
+            size=(50, 50), size_hint=(None, None), line_color="#7B7B7B", line_width=2, md_bg_color='#1E1E1E', text_color="#7B7B7B"
+        )
+        self.font_colorpicker_button.icon = 'palette-outline'
+        self.font_colorpicker_button.text_color = '#7B7B7B'
+        self.font_colorpicker_button.on_press = self.font_colorpicker.open
         # Text overlay item decription
-        text_overlay_item = transform_items_constructor([self.is_text_overlay, MDLabel(
-            text="Text overlay", size_hint=(0.2, 0.1)), self.font_choise_button, self.text_x_pos, self.text_y_pos], columns=5)
+        text_overlay_item = MDStackLayout(orientation='lr-tb')
+        for widget in [self.is_text_overlay, MDLabel(
+                text="Text overlay", size=(100, 70), size_hint=(None, None)),  self.text_x_pos, self.text_y_pos,  self.font_size_input_box, self.font_colorpicker_button, self.font_choise_button]:
+            text_overlay_item.add_widget(widget)
         text_overlay_item.size_hint = (1, None)
+        text_overlay_item.line_color = '#7B7B7B'
+        text_overlay_item.line_width = 2
+        text_overlay_item.spacing = 25
+        text_overlay_item.size = (800, 180)
+        text_overlay_item.radius = 15
         # Text overlay input box
         self.prompt_field = MDTextField()
         self.prompt_field.mode = "rectangle"
-        self.prompt_field.hint_text = "Positive prompt"
+        self.prompt_field.hint_text = "Text for overlay"
         self.prompt_field.size_hint = (0.45, 0.15)
         self.prompt_field.multiline = True
         self.prompt_field.helper_text_mode = "on_error"
@@ -287,15 +314,15 @@ class ImageOverlayScreen(MDScreen):
             preview=True,
         )
         # Start processing button
-        start_button = MDFloatingActionButton()
-        start_button.icon = "send-variant-outline"
-        start_button.size = (25, 25)
-        start_button.font_size = 24
-        start_button.text_color = "#FFFFFF"
-        start_button.md_bg_color = "#000000"
-        start_button.padding = 10
-        start_button.pos_hint = {"x": 0.8, "y": 0.5}
-        start_button.on_press = self.start_processing
+        self.start_button = MDFloatingActionButton()
+        self.start_button.icon = "send-variant-outline"
+        self.start_button.size = (25, 25)
+        self.start_button.font_size = 24
+        self.start_button.text_color = "#FFFFFF"
+        self.start_button.md_bg_color = "#000000"
+        self.start_button.padding = 10
+        self.start_button.pos_hint = {"x": 0.8, "y": 0.5}
+        self.start_button.on_press = self.start_processing
         # Add widgtets to their's parents
         all_selected_layout.add_widget(self.all_selected_checkbox)
         all_selected_layout.add_widget(all_selected_label)
@@ -315,6 +342,14 @@ class ImageOverlayScreen(MDScreen):
         overlay_layout.add_widget(paths_layout)
         self.add_widget(overlay_layout)
 
+    def on_colorpicker_press(self, color_type: str,
+                             selected_color: Union[list, str], *args) -> None:
+        self.font_color = [
+            int(255*selected_color[index]) for index in range(3)]
+        self.font_colorpicker_button.md_bg_color = selected_color
+        self.font_colorpicker.dismiss()
+        print(selected_color)
+
     def next_image_left(self) -> None:
         if self.current_index > 0:
             self.current_index -= 1
@@ -326,11 +361,38 @@ class ImageOverlayScreen(MDScreen):
             self.current_image.source = self.image_paths_list[self.current_index]
 
     def start_processing(self) -> None:
+        self.start_button.disabled = True
         process = Thread(target=self.add_font_or_text)
         process.start()
 
     def add_font_or_text(self):
-        pass
+        resulting_images = list()
+        if self.all_selected_checkbox.active:
+            loaded_images = images_collecting.load_images(
+                self.images_load_path)
+        else:
+            loaded_images = [[images_collecting.load_exact_image(
+                self.current_image.source), self.current_image.source]]
+        for image in loaded_images:
+            if self.is_image_overlay.active:
+                image[0] = images_overlay.overlay_images(image[0], images_collecting.load_exact_image(
+                    self.overlay_image), int(self.image_x_pos.text), int(self.image_y_pos.text))
+            if self.is_text_overlay.active:
+                image[0] = images_overlay.overlay_images(image[0], images_overlay.text_to_image(
+                    self.prompt_field.text,
+                    self.current_font_path,
+                    int(self.font_size_input_box.text),
+                    tuple(self.font_color)
+                ), int(self.text_x_pos.text), int(self.text_y_pos.text))
+            resulting_images.append(image)
+        named_images_list = [[image[0], image[1].split(
+            '\\')[-1]] for image in resulting_images]
+        images_collecting.save_images(named_images_list, self.images_save_path)
+        Clock.schedule_once(self.on_processing_finish)
+
+    def on_processing_finish(self, *arg):
+        self.start_button.disabled = False
+        open_dialog_message('Image overlaying was finished!')
 
     def fill_dropdown_menu(self):
         self.fonts_dropdown_menu.items = [

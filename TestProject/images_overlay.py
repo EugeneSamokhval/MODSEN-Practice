@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
+
 import os
 
 
@@ -17,12 +18,20 @@ def overlay_images(image_1: np.array, image_2: np.array, x: int, y: int):
     Returns:
         The resulting image after overlaying image_2 onto image_1.
     """
-    height, width, _ = image_2.shape
-    image_1[y:y+height, x:x+width] = image_2
-    return image_1
+    image_1 = cv2.cvtColor(image_1, cv2.COLOR_RGB2RGBA)
+    if ((x < image_1.shape[0]) and (y < image_1.shape[1])):
+        height, width, _ = image_2.shape
+        overlay_height = min(height, image_1.shape[0] - y)
+        overlay_width = min(width, image_1.shape[1] - x)
+        blended = cv2.addWeighted(image_1[y:y+overlay_height, x:x+overlay_width], 0.5,
+                                  image_2[:overlay_height, :overlay_width], 0.5, 0)
+        image_1[y:y+overlay_height, x:x+overlay_width] = blended
+        return image_1
+    else:
+        return image_1
 
 
-def text_to_image(text: str, font_path: str, font_size: int, color=(0, 0, 0)):
+def text_to_image(text: str, font_path: str, font_size: int, color=(0, 0, 0, 0)):
     """
     Generate an image of the given text.
 
@@ -35,6 +44,7 @@ def text_to_image(text: str, font_path: str, font_size: int, color=(0, 0, 0)):
     Returns:
         open_cv_image: An Image object with the rendered text.
     """
+
     font = ImageFont.truetype(font_path, font_size)
 
     text_width = font.getlength(text)
