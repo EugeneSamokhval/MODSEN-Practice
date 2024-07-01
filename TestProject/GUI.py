@@ -332,7 +332,7 @@ class ImageOverlayScreen(MDScreen):
         user_input_layout.add_widget(text_overlay_item)
         user_input_layout.add_widget(self.prompt_field)
         user_input_layout.add_widget(all_selected_layout)
-        user_input_layout.add_widget(start_button)
+        user_input_layout.add_widget(self.start_button)
         navigation_buttons_layout.add_widget(self.left_nav_button)
         navigation_buttons_layout.add_widget(self.right_nav_button)
         image_wrapper.add_widget(self.current_image)
@@ -344,61 +344,169 @@ class ImageOverlayScreen(MDScreen):
 
     def on_colorpicker_press(self, color_type: str,
                              selected_color: Union[list, str], *args) -> None:
+        """Sets current font colour for text overlaying
+
+        Args:
+            color_type (str): returns color format as string
+            selected_color (Union[list, str]): Color selected by user in formats RGB, RGBA, HEX
+        """
         self.font_color = [
-            int(255*selected_color[index]) for index in range(3)]
+            int(255*selected_color[index]) for index in range(len(selected_color))]
+        if len(self.font_color) < 4:
+            self.font_color.append(1)
         self.font_colorpicker_button.md_bg_color = selected_color
         self.font_colorpicker.dismiss()
         print(selected_color)
 
     def next_image_left(self) -> None:
+        """Navgation function which switches current displayed image to the left
+        """
         if self.current_index > 0:
             self.current_index -= 1
             self.current_image.source = self.image_paths_list[self.current_index]
 
     def next_image_right(self) -> None:
+        """Navgation function which switches current displayed image to the right
+        """
         if self.current_index < len(self.image_paths_list)-2:
             self.current_index += 1
             self.current_image.source = self.image_paths_list[self.current_index]
 
-    def start_processing(self) -> None:
-        self.start_button.disabled = True
-        process = Thread(target=self.add_font_or_text)
-        process.start()
+    def text_input_checks(self) -> bool:
+        """Checks correctness of user input for text generation fields
 
-    def add_font_or_text(self):
-        resulting_images = list()
-        if self.all_selected_checkbox.active:
-            loaded_images = images_collecting.load_images(
-                self.images_load_path)
+        Returns:
+            bool: Returns True when all the needed data inputed correctly. In any other case returns False.
+        """
+        try:
+            if int(self.text_x_pos.text) and int(self.text_y_pos.text) and int(self.font_size_input_box.text):
+                if self.font_color:
+                    if self.current_font_path:
+                        if self.prompt_field.text:
+                            return True
+                        else:
+                            open_dialog_error(
+                                'You need to write text you want to overlay')
+                            return False
+                    else:
+                        open_dialog_error('You need to choose a font')
+                        return False
+                else:
+                    open_dialog_error('You need to choose a colour')
+                return False
+            else:
+                open_dialog_error(
+                    'X position, Y position, and font size needs to be filled')
+                return False
+        except:
+            open_dialog_error(
+                'X position, Y position, and font size needs to be an integer')
+            return False
+
+    def image_input_checks(self) -> bool:
+        """Checks correctness of user input for image generation fields
+
+        Returns:
+            bool: Returns True when all the needed data inputed correctly. In any other case returns False.
+        """
+        try:
+            if int(self.image_x_pos.text) and int(self.image_y_pos.text):
+                if self.overlay_image:
+                    return True
+                else:
+                    open_dialog_error(
+                        'You need to choose image to overlay')
+                    return False
+            else:
+                open_dialog_error(
+                    'X position and Y posisition fields weren\'t filled')
+                return False
+        except:
+            open_dialog_error(
+                'X position and Y posisition should be integer')
+            return False
+
+    def start_processing(self) -> None:
+        """Checks correctness of user input.
+           Disables start button.
+        """
+        checks_completed = True
+        if self.images_load_path and self.image_paths_list:
+            pass
         else:
-            loaded_images = [[images_collecting.load_exact_image(
-                self.current_image.source), self.current_image.source]]
-        for image in loaded_images:
-            if self.is_image_overlay.active:
-                image[0] = images_overlay.overlay_images(image[0], images_collecting.load_exact_image(
-                    self.overlay_image), int(self.image_x_pos.text), int(self.image_y_pos.text))
-            if self.is_text_overlay.active:
-                image[0] = images_overlay.overlay_images(image[0], images_overlay.text_to_image(
-                    self.prompt_field.text,
-                    self.current_font_path,
-                    int(self.font_size_input_box.text),
-                    tuple(self.font_color)
-                ), int(self.text_x_pos.text), int(self.text_y_pos.text))
-            resulting_images.append(image)
-        named_images_list = [[image[0], image[1].split(
-            '\\')[-1]] for image in resulting_images]
-        images_collecting.save_images(named_images_list, self.images_save_path)
-        Clock.schedule_once(self.on_processing_finish)
+            checks_completed = False
+            open_dialog_error(
+                'You need to choose input and output dirrectories')
+        if self.is_image_overlay.active:
+            checks_completed = self.image_input_checks()
+        if self.is_text_overlay.active:
+            checks_completed = self.text_input_checks()
+        if checks_completed:
+            self.start_button.disabled = True
+            process = Thread(target=self.add_image_or_text)
+            process.start()
+
+    def add_image_or_text(self):
+        """Editing imput images to have text and image overlay
+        """
+        try:
+            resulting_images = list()
+            if self.all_selected_checkbox.active:
+                loaded_images = images_collecting.load_images(
+                    self.images_load_path)
+            else:
+                loaded_images = [[images_collecting.load_exact_image(
+                    self.current_image.source), self.current_image.source]]
+            for image in loaded_images:
+                if self.is_image_overlay.active:
+                    image[0] = images_overlay.overlay_images(image[0], images_collecting.load_exact_image(
+                        self.overlay_image), int(self.image_x_pos.text), int(self.image_y_pos.text))
+                if self.is_text_overlay.active:
+                    image[0] = images_overlay.overlay_text(image[0], int(self.text_x_pos.text), int(self.text_y_pos.text),
+                                                           self.prompt_field.text,
+                                                           self.current_font_path,
+                                                           int(self.font_size_input_box.text),
+                                                           tuple(
+                                                               self.font_color),
+                                                           self.font_color[-1]
+                                                           )
+                resulting_images.append(image)
+            named_images_list = [[image[0], image[1].split(
+                '\\')[-1]] for image in resulting_images]
+            images_collecting.save_images(
+                named_images_list, self.images_save_path)
+            Clock.schedule_once(self.on_processing_finish)
+        except:
+            Clock.schedule_once(self.on_processing_finish_error)
 
     def on_processing_finish(self, *arg):
+        """Executed when the function add_image_or_text completes successfully.
+            Enables start button.
+            Shows dialog message.
+        """
         self.start_button.disabled = False
         open_dialog_message('Image overlaying was finished!')
 
+    def on_processing_finish_error(self, *arg):
+        """Executed when the function add_image_or_text completes with error.
+            Enables start button.
+            Shows error message.
+        """
+        self.start_button.disabled = False
+        open_dialog_message(
+            'Image overlaying was finished with error please check correctness of input data')
+
     def fill_dropdown_menu(self):
+        """Fills dropown menu with fonts
+        """
         self.fonts_dropdown_menu.items = [
             {"text": name, "on_release": lambda name=name: self.set_current_font(name)} for name in images_overlay.load_fonts_names()]
 
     def set_current_font(self, name: str):
+        """When user choses a font from dropdown menu, saves chosen font
+        Args:
+            name (str): name of chosen font
+        """
         try:
             all_paths = images_overlay.load_fonts()
             self.current_font_path = list(filter(
@@ -586,6 +694,7 @@ class ImageGenerationScreen(MDScreen):
                         open_dialog_error(
                             "Image dimension must be higher than 0")
                         return None
+                    self.start_button.disabled = True
                     process = Thread(target=self.generate_image)
                     process.start()
                 except:
@@ -599,39 +708,51 @@ class ImageGenerationScreen(MDScreen):
         """
         Function which calls an image generating api and scheldues image update after download
         """
-        images_in_dir = [
-            f
-            for f in os.listdir(self.images_unload_path)
-            if os.path.isfile(os.path.join(self.images_unload_path, f))
-        ]
-        current_index = 0
-        while "ai_img_" + str(current_index) + ".png" in images_in_dir:
-            current_index += 1
-        self.image_path = (
-            self.images_unload_path + "\\ai_img_" + str(current_index) + ".png"
-        )
-        if self.width_textfield and self.height_textfield:
-            image = image_generation.get_generated_image(
-                prompt=self.prompt_field.text,
-                negative_prompt=self.negative_prompt.text,
-                width=int(self.width_textfield.text),
-                height=int(self.height_textfield.text),
+        try:
+            images_in_dir = [
+                f
+                for f in os.listdir(self.images_unload_path)
+                if os.path.isfile(os.path.join(self.images_unload_path, f))
+            ]
+            current_index = 0
+            while "ai_img_" + str(current_index) + ".png" in images_in_dir:
+                current_index += 1
+            self.image_path = (
+                self.images_unload_path + "\\ai_img_" +
+                str(current_index) + ".png"
             )
-        else:
-            image = image_generation.get_generated_image(
-                prompt=self.prompt_field.text,
-                negative_prompt=self.negative_prompt.text,
+            if self.width_textfield and self.height_textfield:
+                image = image_generation.get_generated_image(
+                    prompt=self.prompt_field.text,
+                    negative_prompt=self.negative_prompt.text,
+                    width=int(self.width_textfield.text),
+                    height=int(self.height_textfield.text),
+                )
+            else:
+                image = image_generation.get_generated_image(
+                    prompt=self.prompt_field.text,
+                    negative_prompt=self.negative_prompt.text,
+                )
+            images_collecting.save_images(
+                images_list=[(image, "ai_img_" + str(current_index) + ".png")],
+                PATH=self.images_unload_path,
             )
-        images_collecting.save_images(
-            images_list=[(image, "ai_img_" + str(current_index) + ".png")],
-            PATH=self.images_unload_path,
-        )
-        Clock.schedule_once(self.update_image)
+            Clock.schedule_once(self.update_image)
+        except:
+            Clock.schedule_once(self.update_image)
 
     def update_image(self, *args):
         """updates image on the screen after generation"""
         self.current_downloaded_image.source = self.image_path
         open_dialog_message("Image has been generated!")
+        self.start_button.disabled = False
+
+    def error_during_generation(self, *args):
+        """Show error pop up and unlock the button
+        """
+        open_dialog_error(
+            "There is an error during generation, check your internet connection.")
+        self.start_button.disabled = False
 
     def file_manager_opener(self):
         """opens file manager"""
@@ -848,15 +969,15 @@ class MainScreen(MDScreen):
         self.output_button.text = "Choose output path"
         self.output_button.on_press = lambda: self.file_manager_opener(False)
         # Start transformations
-        start_button = MDFloatingActionButton()
-        start_button.icon = "send-variant-outline"
-        start_button.size = (25, 25)
-        start_button.font_size = 24
-        start_button.text_color = "#FFFFFF"
-        start_button.md_bg_color = "#000000"
-        start_button.padding = 10
-        start_button.pos_hint = {"x": 0.8, "y": 0.5}
-        start_button.on_press = self.start_processing
+        self.start_button = MDFloatingActionButton()
+        self.start_button.icon = "send-variant-outline"
+        self.start_button.size = (25, 25)
+        self.start_button.font_size = 24
+        self.start_button.text_color = "#FFFFFF"
+        self.start_button.md_bg_color = "#000000"
+        self.start_button.padding = 10
+        self.start_button.pos_hint = {"x": 0.8, "y": 0.5}
+        self.start_button.on_press = self.start_processing
         # Add widgets to their's parents
         transform_layout.add_widget(resize_widget)
         transform_layout.add_widget(cutout_widget)
@@ -872,17 +993,23 @@ class MainScreen(MDScreen):
         main_window_layout.add_widget(transform_layout)
         transform_layout.add_widget(self.input_button)
         transform_layout.add_widget(self.output_button)
-        transform_layout.add_widget(start_button)
+        transform_layout.add_widget(self.start_button)
         self.add_widget(main_window_layout)
 
     def open_dialog(self, *args):
         """
         calls an open dialog function inside of a main thread
         """
+        self.start_button.disabled = False
         message_text = (
             "Image editing is finished. Images are saved at " + self.images_unload_path
         )
         return open_dialog_message(message_text)
+
+    def open_error(self, *args):
+        self.start_button.disabled = False
+        open_dialog_error(
+            'Error during image processing please check the input.')
 
     def on_checkbox_active(self, cb: MDCheckbox):
         """
@@ -965,6 +1092,7 @@ class MainScreen(MDScreen):
             images_collecting.save_images(result, PATH=self.images_unload_path)
             Clock.schedule_once(self.open_dialog)
         except:
+            Clock.schedule_once()
             open_dialog_error(
                 "Error while converting images. Check the entered data for correctness."
             )
@@ -973,6 +1101,7 @@ class MainScreen(MDScreen):
         """Check upload and import paths and calls processing function thread. Also catches value errors"""
         if self.images_load_path and self.images_unload_path:
             try:
+                self.start_button.disabled = True
                 process = Thread(target=self.process_images)
                 process.start()
             except:
