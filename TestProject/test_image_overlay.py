@@ -18,8 +18,7 @@ class TestImageOverlay(unittest.TestCase):
         Check input type.
         """
         image = np.random.randint(0, 256, (100, 100, 3), dtype=np.uint8)
-        result = images_overlay.overlay_text(
-            image, 1, 10, 'Hello world', font_path='./fonts/new-standard-font-collection/ageo-32909/AgeoTrialBold-3zPA3.ttf')
+        result = images_overlay.overlay_text(image, 1, 10, 'Hello world', font_size=10, font_path='./fonts/new-standard-font-collection/ageo-32909/AgeoTrialBold-3zPA3.ttf')
         self.assertEqual(type(result), np.array)
 
     def check_load_fonts(self):
