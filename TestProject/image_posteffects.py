@@ -59,7 +59,7 @@ def contrast(image: np.array, change_scale: int):
     Returns:
         np.array: image after processing
     """
-    adjusted_image = cv2.convertScaleAbs(image, alpha=1+(change_scale/256))
+    adjusted_image = cv2.convertScaleAbs(image, alpha=1 + (change_scale / 256))
     return adjusted_image
 
 
@@ -78,7 +78,7 @@ def random_crops(image: np.array, crop_width: int, crop_height: int):
     start_x = np.random.randint(0, image_width - crop_width)
     start_y = np.random.randint(0, image_height - crop_height)
     cropped_image = image[
-        start_y: start_y + crop_height, start_x: start_x + crop_width
+        start_y : start_y + crop_height, start_x : start_x + crop_width
     ]
     return cropped_image
 

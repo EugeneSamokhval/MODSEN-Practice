@@ -29,35 +29,34 @@ class TestImagePosteffects(unittest.TestCase):
             test_image (np.array): image before processing.
             modified_image (np.array): image after processing.
         """
-        self.assertEqual(True, np.array_equal(
-            modified_image.shape, test_image.shape), "Wrong image shape")
-        self.assertNotEqual(True, np.array_equal(
-            modified_image, test_image), "Image didn't changed")
+        self.assertEqual(
+            True,
+            np.array_equal(modified_image.shape, test_image.shape),
+            "Wrong image shape",
+        )
+        self.assertNotEqual(
+            True, np.array_equal(modified_image, test_image), "Image didn't changed"
+        )
 
     def test_saturation(self):
-        """Tests for saturation change
-        """
+        """Tests for saturation change"""
         image = np.random.randint(0, 256, (100, 100, 3), dtype=np.uint8)
         for sat_factor in range(1, 100, 10):
             modified_image = image_posteffects.saturation(image, sat_factor)
             self.basic_test(image, modified_image)
 
     def test_brightness(self):
-        """Tests for brightness change
-        """
+        """Tests for brightness change"""
         image = np.random.randint(0, 256, (100, 100, 3), dtype=np.uint8)
         for brightness_factor in range(1, 100, 10):
-            modified_image = image_posteffects.brightness(
-                image, brightness_factor)
+            modified_image = image_posteffects.brightness(image, brightness_factor)
             self.basic_test(image, modified_image)
 
     def test_noise(self):
         """Tests for function which adds noise"""
         image = np.random.randint(0, 256, (100, 100, 3), dtype=np.uint8)
         for noise_scale in [1, 2, 3]:
-            modified_image = image_posteffects.noise(
-                image, noise_scale
-            )
+            modified_image = image_posteffects.noise(image, noise_scale)
             self.basic_test(image, modified_image)
 
     def test_contrast(self):
@@ -68,14 +67,15 @@ class TestImagePosteffects(unittest.TestCase):
             self.basic_test(image, modified_image)
 
     def test_rand_crops(self):
-        """Test for random croping
-        """
+        """Test for random croping"""
         image = np.random.randint(0, 256, (100, 100, 3), dtype=np.uint8)
         rand_crop = image_posteffects.random_crops(image, 25, 25)
-        self.assertTrue(is_image_inside(image, rand_crop),
-                        "Crop doesn't belong to the image")
-        self.assertEqual(rand_crop.shape, (25, 25, 3),
-                         "Crop's shape doesn't match input shape input")
+        self.assertTrue(
+            is_image_inside(image, rand_crop), "Crop doesn't belong to the image"
+        )
+        self.assertEqual(
+            rand_crop.shape, (25, 25, 3), "Crop's shape doesn't match input shape input"
+        )
 
 
 if __name__ == "__main__":

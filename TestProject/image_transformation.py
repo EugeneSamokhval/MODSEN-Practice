@@ -27,7 +27,7 @@ def cutout(image, top_left: list, down_right: list):
     Returns:
         np.array: cut of an image
     """
-    return image[top_left[0]: down_right[0], top_left[1]: down_right[1]]
+    return image[top_left[0] : down_right[0], top_left[1] : down_right[1]]
 
 
 def flip(image: np.array, is_horisontal: int):

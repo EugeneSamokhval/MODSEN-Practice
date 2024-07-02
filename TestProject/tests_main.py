@@ -13,6 +13,6 @@ logging.basicConfig(
 
 if __name__ == "__main__":
     loader = unittest.TestLoader()
-    suite = loader.discover(os.path.curdir, pattern='test_*.py')
+    suite = loader.discover(os.path.curdir, pattern="test_*.py")
     runner = unittest.TextTestRunner()
     runner.run(suite)

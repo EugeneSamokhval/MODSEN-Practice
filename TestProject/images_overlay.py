@@ -3,7 +3,9 @@ from PIL import Image, ImageDraw, ImageFont, ImageOps
 import os
 
 
-def overlay_images(image_1: np.array, image_2: np.array, x: int, y: int, alpha: int = 1):
+def overlay_images(
+    image_1: np.array, image_2: np.array, x: int, y: int, alpha: int = 1
+):
     """
     Overlay image_2 onto image_1 at position (x, y).
 
@@ -29,16 +31,22 @@ def overlay_images(image_1: np.array, image_2: np.array, x: int, y: int, alpha: 
     overlay_with_transparency = image_2.copy()
     overlay_with_transparency.putalpha(int(255 * alpha))
 
-    empty_image = Image.new(
-        'RGBA', (size_container[0], size_container[1]))
+    empty_image = Image.new("RGBA", (size_container[0], size_container[1]))
     empty_image.paste(image_1, (0, 0))
-    empty_image.paste(overlay_with_transparency,
-                      (x, y), overlay_with_transparency)
+    empty_image.paste(overlay_with_transparency, (x, y), overlay_with_transparency)
 
     return np.array(empty_image)
 
 
-def overlay_text(image: np.array, x: int, y: int, text: str, font_path: str, font_size: int, color=(0, 0, 0, 255)):
+def overlay_text(
+    image: np.array,
+    x: int,
+    y: int,
+    text: str,
+    font_path: str,
+    font_size: int,
+    color=(0, 0, 0, 255),
+):
     """Draws text over the input image
 
     Args:
@@ -70,10 +78,10 @@ def load_fonts() -> list:
         list: list of paths to font files
     """
     file_paths = []
-    for root, dirs, files in os.walk('fonts'):
+    for root, dirs, files in os.walk("fonts"):
         for file in files:
             file_path = os.path.join(root, file)
-            if '.ttf' in file_path:
+            if ".ttf" in file_path:
                 file_paths.append(file_path)
                 break
     return file_paths
@@ -89,7 +97,7 @@ def load_fonts_names() -> list:
     names_list = []
     for path in paths_list:
         path: str
-        font_name = path.split('\\')[-1].removesuffix('.ttf')
-        font_name = font_name.split('-')[0]
+        font_name = path.split("\\")[-1].removesuffix(".ttf")
+        font_name = font_name.split("-")[0]
         names_list.append(font_name)
     return names_list

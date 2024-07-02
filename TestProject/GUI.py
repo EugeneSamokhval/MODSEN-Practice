@@ -87,15 +87,14 @@ class App(MDApp):
         # overlay window bottom navigation tab description
         self.image_overlay_container = MDBottomNavigationItem()
         self.image_overlay_container.name = "Overlay"
-        self.image_overlay_container.icon = 'image-multiple-outline'
-        self.image_overlay_container.text = 'Overlay'
+        self.image_overlay_container.icon = "image-multiple-outline"
+        self.image_overlay_container.text = "Overlay"
         # assighning widgets to their's parents
         self.main_window_container.add_widget(MainScreen())
         self.image_generation_container.add_widget(ImageGenerationScreen())
         self.image_overlay_container.add_widget(ImageOverlayScreen())
         self.bottom_navigation_layout.add_widget(self.main_window_container)
-        self.bottom_navigation_layout.add_widget(
-            self.image_generation_container)
+        self.bottom_navigation_layout.add_widget(self.image_generation_container)
         self.bottom_navigation_layout.add_widget(self.image_overlay_container)
         self.bottom_navigation_layout.on_switch_tabs = self.switch_screens
         return self.bottom_navigation_layout
@@ -177,18 +176,18 @@ class ImageOverlayScreen(MDScreen):
         self.left_nav_button.size = (50, 50)
         self.left_nav_button.line_color = "#7B7B7B"
         self.left_nav_button.line_width = 2
-        self.left_nav_button.md_bg_color = '#1E1E1E'
+        self.left_nav_button.md_bg_color = "#1E1E1E"
         self.left_nav_button.text_color = "#7B7B7B"
-        self.left_nav_button.icon = 'arrow-left-bold-outline'
+        self.left_nav_button.icon = "arrow-left-bold-outline"
         self.left_nav_button.on_press = self.next_image_left
         # Navigation right button
         self.right_nav_button = MDFloatingActionButton()
         self.right_nav_button.size = (50, 50)
         self.right_nav_button.line_color = "#7B7B7B"
         self.right_nav_button.line_width = 2
-        self.right_nav_button.md_bg_color = '#1E1E1E'
+        self.right_nav_button.md_bg_color = "#1E1E1E"
         self.right_nav_button.text_color = "#7B7B7B"
-        self.right_nav_button.icon = 'arrow-right-bold-outline'
+        self.right_nav_button.icon = "arrow-right-bold-outline"
         self.right_nav_button.on_press = self.next_image_right
         # User input layout
         user_input_layout = MDGridLayout(cols=1, rows=5)
@@ -199,63 +198,80 @@ class ImageOverlayScreen(MDScreen):
         self.is_image_overlay.size = (50, 60)
         self.is_image_overlay.size_hint = (None, None)
         # Image overlay x position text field
-        self.image_x_pos = MDTextField(
-            hint_text="x position", size_hint=(0.35, 0.1))
+        self.image_x_pos = MDTextField(hint_text="x position", size_hint=(0.35, 0.1))
         # Image overlay y position text field
-        self.image_y_pos = MDTextField(
-            hint_text="y position", size_hint=(0.35, 0.1))
+        self.image_y_pos = MDTextField(hint_text="y position", size_hint=(0.35, 0.1))
         # Image overlay path opening button
         self.overlay_input_button = MDRectangleFlatButton()
         self.overlay_input_button.padding = 20
         self.overlay_input_button.size_hint = (0.1, 0.05)
         self.overlay_input_button.text = "Choose image to overlay"
-        self.overlay_input_button.on_press = lambda: self.file_manager_opener(
-            'Over')
+        self.overlay_input_button.on_press = lambda: self.file_manager_opener("Over")
         # Image overlay item
-        image_overlay_item = transform_items_constructor([self.is_image_overlay, MDLabel(
-            text="Image overlay", size_hint=(0.2, 0.1)), self.overlay_input_button, self.image_x_pos, self.image_y_pos], columns=5)
+        image_overlay_item = transform_items_constructor(
+            [
+                self.is_image_overlay,
+                MDLabel(text="Image overlay", size_hint=(0.2, 0.1)),
+                self.overlay_input_button,
+                self.image_x_pos,
+                self.image_y_pos,
+            ],
+            columns=5,
+        )
         image_overlay_item.size_hint = (1, None)
         # Text overlay check box
         self.is_text_overlay = MDCheckbox()
         self.is_text_overlay.size = (50, 60)
         self.is_text_overlay.size_hint = (None, None)
         # Text overlay x position text field
-        self.text_x_pos = MDTextField(size=(200, 70), padding=25,
-                                      hint_text="x position", size_hint=(None, None))
+        self.text_x_pos = MDTextField(
+            size=(200, 70), padding=25, hint_text="x position", size_hint=(None, None)
+        )
         # Text overlay x position text field
-        self.text_y_pos = MDTextField(size=(200, 70), padding=25,
-                                      hint_text="y position", size_hint=(None, None))
+        self.text_y_pos = MDTextField(
+            size=(200, 70), padding=25, hint_text="y position", size_hint=(None, None)
+        )
         # Text overlay font choise button
         self.font_choise_button = MDRectangleFlatButton()
         self.font_choise_button.padding = 20
         self.font_choise_button.size_hint = (None, None)
         self.font_choise_button.size = (200, 70)
-        self.font_choise_button.font_style = 'Button'
+        self.font_choise_button.font_style = "Button"
         self.font_choise_button.text = "Choose overlay font"
         self.font_choise_button.on_press = lambda: self.fonts_dropdown_menu.open()
         # Font size input field
         self.font_size_input_box = MDTextField(
-            size=(200, 70), padding=25,
-            hint_text="font size", size_hint=(None, None))
-        # Font colorpicker
-        self.font_colorpicker = MDColorPicker(
-            size_hint=(0.45, 0.85)
+            size=(200, 70), padding=25, hint_text="font size", size_hint=(None, None)
         )
+        # Font colorpicker
+        self.font_colorpicker = MDColorPicker(size_hint=(0.45, 0.85))
         self.font_colorpicker.on_release = self.on_colorpicker_press
         # Open font colorpicker button
         self.font_colorpicker_button = MDFloatingActionButton(
-            size=(50, 50), size_hint=(None, None), line_color="#7B7B7B", line_width=2, md_bg_color='#1E1E1E', text_color="#7B7B7B"
+            size=(50, 50),
+            size_hint=(None, None),
+            line_color="#7B7B7B",
+            line_width=2,
+            md_bg_color="#1E1E1E",
+            text_color="#7B7B7B",
         )
-        self.font_colorpicker_button.icon = 'palette-outline'
-        self.font_colorpicker_button.text_color = '#7B7B7B'
+        self.font_colorpicker_button.icon = "palette-outline"
+        self.font_colorpicker_button.text_color = "#7B7B7B"
         self.font_colorpicker_button.on_press = self.font_colorpicker.open
         # Text overlay item decription
-        text_overlay_item = MDStackLayout(orientation='lr-tb')
-        for widget in [self.is_text_overlay, MDLabel(
-                text="Text overlay", size=(100, 70), size_hint=(None, None)),  self.text_x_pos, self.text_y_pos,  self.font_size_input_box, self.font_colorpicker_button, self.font_choise_button]:
+        text_overlay_item = MDStackLayout(orientation="lr-tb")
+        for widget in [
+            self.is_text_overlay,
+            MDLabel(text="Text overlay", size=(100, 70), size_hint=(None, None)),
+            self.text_x_pos,
+            self.text_y_pos,
+            self.font_size_input_box,
+            self.font_colorpicker_button,
+            self.font_choise_button,
+        ]:
             text_overlay_item.add_widget(widget)
         text_overlay_item.size_hint = (1, None)
-        text_overlay_item.line_color = '#7B7B7B'
+        text_overlay_item.line_color = "#7B7B7B"
         text_overlay_item.line_width = 2
         text_overlay_item.spacing = 25
         text_overlay_item.size = (800, 180)
@@ -297,16 +313,16 @@ class ImageOverlayScreen(MDScreen):
         self.input_button.padding = 20
         self.input_button.size_hint = (0.1, 0.05)
         self.input_button.text = "Choose input path"
-        self.input_button.on_press = lambda: self.file_manager_opener('Inp')
+        self.input_button.on_press = lambda: self.file_manager_opener("Inp")
         # Open path to output button
         self.output_button = MDRectangleFlatButton()
         self.output_button.padding = 20
         self.output_button.size_hint = (0.1, 0.05)
         self.output_button.text = "Choose output path"
-        self.output_button.on_press = lambda: self.file_manager_opener('Out')
+        self.output_button.on_press = lambda: self.file_manager_opener("Out")
         # File manager definition and attributes
         self.manager_open = False
-        self.manager_mode = ''
+        self.manager_mode = ""
         self.file_manager = MDFileManager(
             exit_manager=self.exit_manager,
             select_path=self.select_path,
@@ -342,8 +358,9 @@ class ImageOverlayScreen(MDScreen):
         overlay_layout.add_widget(paths_layout)
         self.add_widget(overlay_layout)
 
-    def on_colorpicker_press(self, color_type: str,
-                             selected_color: Union[list, str], *args) -> None:
+    def on_colorpicker_press(
+        self, color_type: str, selected_color: Union[list, str], *args
+    ) -> None:
         """Sets current font colour for text overlaying
 
         Args:
@@ -351,7 +368,8 @@ class ImageOverlayScreen(MDScreen):
             selected_color (Union[list, str]): Color selected by user in formats RGB, RGBA, HEX
         """
         self.font_color = [
-            int(255*selected_color[index]) for index in range(len(selected_color))]
+            int(255 * selected_color[index]) for index in range(len(selected_color))
+        ]
         if len(self.font_color) < 4:
             self.font_color.append(1)
         self.font_colorpicker_button.md_bg_color = selected_color
@@ -359,16 +377,14 @@ class ImageOverlayScreen(MDScreen):
         print(selected_color)
 
     def next_image_left(self) -> None:
-        """Navgation function which switches current displayed image to the left
-        """
+        """Navgation function which switches current displayed image to the left"""
         if self.current_index > 0:
             self.current_index -= 1
             self.current_image.source = self.image_paths_list[self.current_index]
 
     def next_image_right(self) -> None:
-        """Navgation function which switches current displayed image to the right
-        """
-        if self.current_index < len(self.image_paths_list)-2:
+        """Navgation function which switches current displayed image to the right"""
+        if self.current_index < len(self.image_paths_list) - 2:
             self.current_index += 1
             self.current_image.source = self.image_paths_list[self.current_index]
 
@@ -379,28 +395,35 @@ class ImageOverlayScreen(MDScreen):
             bool: Returns True when all the needed data inputed correctly. In any other case returns False.
         """
         try:
-            if int(self.text_x_pos.text) and int(self.text_y_pos.text) and int(self.font_size_input_box.text):
+            if (
+                int(self.text_x_pos.text)
+                and int(self.text_y_pos.text)
+                and int(self.font_size_input_box.text)
+            ):
                 if self.font_color:
                     if self.current_font_path:
                         if self.prompt_field.text:
                             return True
                         else:
                             open_dialog_error(
-                                'You need to write text you want to overlay')
+                                "You need to write text you want to overlay"
+                            )
                             return False
                     else:
-                        open_dialog_error('You need to choose a font')
+                        open_dialog_error("You need to choose a font")
                         return False
                 else:
-                    open_dialog_error('You need to choose a colour')
+                    open_dialog_error("You need to choose a colour")
                 return False
             else:
                 open_dialog_error(
-                    'X position, Y position, and font size needs to be filled')
+                    "X position, Y position, and font size needs to be filled"
+                )
                 return False
         except:
             open_dialog_error(
-                'X position, Y position, and font size needs to be an integer')
+                "X position, Y position, and font size needs to be an integer"
+            )
             return False
 
     def image_input_checks(self) -> bool:
@@ -414,29 +437,25 @@ class ImageOverlayScreen(MDScreen):
                 if self.overlay_image:
                     return True
                 else:
-                    open_dialog_error(
-                        'You need to choose image to overlay')
+                    open_dialog_error("You need to choose image to overlay")
                     return False
             else:
-                open_dialog_error(
-                    'X position and Y posisition fields weren\'t filled')
+                open_dialog_error("X position and Y posisition fields weren't filled")
                 return False
         except:
-            open_dialog_error(
-                'X position and Y posisition should be integer')
+            open_dialog_error("X position and Y posisition should be integer")
             return False
 
     def start_processing(self) -> None:
         """Checks correctness of user input.
-           Disables start button.
+        Disables start button.
         """
         checks_completed = True
         if self.images_load_path and self.image_paths_list:
             pass
         else:
             checks_completed = False
-            open_dialog_error(
-                'You need to choose input and output dirrectories')
+            open_dialog_error("You need to choose input and output dirrectories")
         if self.is_image_overlay.active:
             checks_completed = self.image_input_checks()
         if self.is_text_overlay.active:
@@ -447,60 +466,70 @@ class ImageOverlayScreen(MDScreen):
             process.start()
 
     def add_image_or_text(self):
-        """Editing imput images to have text and image overlay
-        """
+        """Editing imput images to have text and image overlay"""
         try:
             resulting_images = list()
             if self.all_selected_checkbox.active:
-                loaded_images = images_collecting.load_images(
-                    self.images_load_path)
+                loaded_images = images_collecting.load_images(self.images_load_path)
             else:
-                loaded_images = [[images_collecting.load_exact_image(
-                    self.current_image.source), self.current_image.source]]
+                loaded_images = [
+                    [
+                        images_collecting.load_exact_image(self.current_image.source),
+                        self.current_image.source,
+                    ]
+                ]
             for image in loaded_images:
                 if self.is_image_overlay.active:
-                    image[0] = images_overlay.overlay_images(image[0], images_collecting.load_exact_image(
-                        self.overlay_image), int(self.image_x_pos.text), int(self.image_y_pos.text))
+                    image[0] = images_overlay.overlay_images(
+                        image[0],
+                        images_collecting.load_exact_image(self.overlay_image),
+                        int(self.image_x_pos.text),
+                        int(self.image_y_pos.text),
+                    )
                 if self.is_text_overlay.active:
-                    image[0] = images_overlay.overlay_text(image[0], int(self.text_x_pos.text), int(self.text_y_pos.text),
-                                                           self.prompt_field.text,
-                                                           self.current_font_path,
-                                                           int(self.font_size_input_box.text),
-                                                           tuple(
-                                                               self.font_color),
-                                                           self.font_color[-1]
-                                                           )
+                    image[0] = images_overlay.overlay_text(
+                        image[0],
+                        int(self.text_x_pos.text),
+                        int(self.text_y_pos.text),
+                        self.prompt_field.text,
+                        self.current_font_path,
+                        int(self.font_size_input_box.text),
+                        tuple(self.font_color),
+                        self.font_color[-1],
+                    )
                 resulting_images.append(image)
-            named_images_list = [[image[0], image[1].split(
-                '\\')[-1]] for image in resulting_images]
-            images_collecting.save_images(
-                named_images_list, self.images_save_path)
+            named_images_list = [
+                [image[0], image[1].split("\\")[-1]] for image in resulting_images
+            ]
+            images_collecting.save_images(named_images_list, self.images_save_path)
             Clock.schedule_once(self.on_processing_finish)
         except:
             Clock.schedule_once(self.on_processing_finish_error)
 
     def on_processing_finish(self, *arg):
         """Executed when the function add_image_or_text completes successfully.
-            Enables start button.
-            Shows dialog message.
+        Enables start button.
+        Shows dialog message.
         """
         self.start_button.disabled = False
-        open_dialog_message('Image overlaying was finished!')
+        open_dialog_message("Image overlaying was finished!")
 
     def on_processing_finish_error(self, *arg):
         """Executed when the function add_image_or_text completes with error.
-            Enables start button.
-            Shows error message.
+        Enables start button.
+        Shows error message.
         """
         self.start_button.disabled = False
         open_dialog_message(
-            'Image overlaying was finished with error please check correctness of input data')
+            "Image overlaying was finished with error please check correctness of input data"
+        )
 
     def fill_dropdown_menu(self):
-        """Fills dropown menu with fonts
-        """
+        """Fills dropown menu with fonts"""
         self.fonts_dropdown_menu.items = [
-            {"text": name, "on_release": lambda name=name: self.set_current_font(name)} for name in images_overlay.load_fonts_names()]
+            {"text": name, "on_release": lambda name=name: self.set_current_font(name)}
+            for name in images_overlay.load_fonts_names()
+        ]
 
     def set_current_font(self, name: str):
         """When user choses a font from dropdown menu, saves chosen font
@@ -509,13 +538,13 @@ class ImageOverlayScreen(MDScreen):
         """
         try:
             all_paths = images_overlay.load_fonts()
-            self.current_font_path = list(filter(
-                lambda string: name in string, all_paths))[0]
+            self.current_font_path = list(
+                filter(lambda string: name in string, all_paths)
+            )[0]
             self.font_choise_button.text = name
             self.fonts_dropdown_menu.dismiss()
         except:
-            open_dialog_error(
-                "This font is no longer presented in fonts dirrectory")
+            open_dialog_error("This font is no longer presented in fonts dirrectory")
 
     def file_manager_opener(self, mode: str):
         """Opens file manager
@@ -534,23 +563,23 @@ class ImageOverlayScreen(MDScreen):
             path (str): Chosen path
         """
         self.exit_manager()
-        if self.manager_mode == 'Inp':
+        if self.manager_mode == "Inp":
             self.load_images(path)
             self.input_button.text = path
             self.images_load_path = path
-        elif self.manager_mode == 'Out':
+        elif self.manager_mode == "Out":
             self.images_save_path = path
             self.output_button.text = path
-        elif self.manager_mode == 'Over':
+        elif self.manager_mode == "Over":
             is_image = False
-            for defintion in ['.png', '.jpg', '.jpeg', '.bmp']:
+            for defintion in [".png", ".jpg", ".jpeg", ".bmp"]:
                 if defintion in path:
-                    self.overlay_input_button.text = path.split('\\')[-1]
+                    self.overlay_input_button.text = path.split("\\")[-1]
                     self.overlay_image = path
                     is_image = True
                     break
             if not is_image:
-                open_dialog_error('You need to chose image')
+                open_dialog_error("You need to chose image")
         toast(path)
 
     def exit_manager(self, *args):
@@ -687,12 +716,10 @@ class ImageGenerationScreen(MDScreen):
                     width_check = int(self.width_textfield.text)
                     height_check = int(self.width_textfield.text)
                     if (width_check > 1024) or (height_check > 1024):
-                        open_dialog_error(
-                            "Image dimension must be lower than 1024")
+                        open_dialog_error("Image dimension must be lower than 1024")
                         return None
                     elif (width_check < 0) or (height_check < 0):
-                        open_dialog_error(
-                            "Image dimension must be higher than 0")
+                        open_dialog_error("Image dimension must be higher than 0")
                         return None
                     self.start_button.disabled = True
                     process = Thread(target=self.generate_image)
@@ -718,8 +745,7 @@ class ImageGenerationScreen(MDScreen):
             while "ai_img_" + str(current_index) + ".png" in images_in_dir:
                 current_index += 1
             self.image_path = (
-                self.images_unload_path + "\\ai_img_" +
-                str(current_index) + ".png"
+                self.images_unload_path + "\\ai_img_" + str(current_index) + ".png"
             )
             if self.width_textfield and self.height_textfield:
                 image = image_generation.get_generated_image(
@@ -748,10 +774,10 @@ class ImageGenerationScreen(MDScreen):
         self.start_button.disabled = False
 
     def error_during_generation(self, *args):
-        """Show error pop up and unlock the button
-        """
+        """Show error pop up and unlock the button"""
         open_dialog_error(
-            "There is an error during generation, check your internet connection.")
+            "There is an error during generation, check your internet connection."
+        )
         self.start_button.disabled = False
 
     def file_manager_opener(self):
@@ -816,10 +842,8 @@ class MainScreen(MDScreen):
         )
         # cutout item
         self.checkboxes[check_list[1]] = [
-            MDTextField(
-                hint_text="top left point [x, y]", size_hint=(0.35, 0.1)),
-            MDTextField(
-                hint_text="bottom right point [x, y]", size_hint=(0.35, 0.1)),
+            MDTextField(hint_text="top left point [x, y]", size_hint=(0.35, 0.1)),
+            MDTextField(hint_text="bottom right point [x, y]", size_hint=(0.35, 0.1)),
         ]
         cutout_widget = transform_items_constructor(
             [
@@ -945,8 +969,7 @@ class MainScreen(MDScreen):
             pos_hint=(1, 1),
         )
         self.image_table.bind(on_check_press=self.on_check)
-        self.image_table.header.ids.check.bind(
-            on_release=self.on_checkbox_active)
+        self.image_table.header.ids.check.bind(on_release=self.on_checkbox_active)
         self.image_table.padding = 25
         # File manager definition and attributes
         self.manager_open = False
@@ -1008,8 +1031,7 @@ class MainScreen(MDScreen):
 
     def open_error(self, *args):
         self.start_button.disabled = False
-        open_dialog_error(
-            'Error during image processing please check the input.')
+        open_dialog_error("Error during image processing please check the input.")
 
     def on_checkbox_active(self, cb: MDCheckbox):
         """
