@@ -46,21 +46,16 @@ class TestImageCollecting(unittest.TestCase):
         for entry in range(len(images_data[0])):
             if type(images_data[0][entry]) != str:
                 is_the_same_type = False
-        self.assertTrue(is_the_same_type, "Can't get data correctly from an image")
+        self.assertTrue(is_the_same_type,
+                        "Can't get data correctly from an image")
         os.remove("test.png")
 
     def test_save_iamges(self):
         """Test cases for funtion which saves list of images"""
         image = np.random.randint(0, 256, (100, 100, 3), dtype=np.uint8)
         images_collecting.save_images([(image, "test.png")], os.path.curdir)
-        print(
-            [
-                image_show
-                for image_show in os.listdir(os.curdir)
-                if os.path.isfile(image_show)
-            ]
-        )
-        self.assertTrue(open(".\\test.png", "r"), "Image wasn't saved correctly")
+        self.assertTrue(open(".\\test.png", "r"),
+                        "Image wasn't saved correctly")
         os.remove(".\\test.png")
 
     def test_load_images(self):

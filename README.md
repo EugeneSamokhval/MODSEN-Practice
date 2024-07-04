@@ -32,7 +32,7 @@ To get started with Image Augmentation, follow these steps:
 2. Install the required dependencies:
 
 ```
-    pip install kivymd opencv-python numpy requests pillow
+    pip install kivymd opencv-python numpy requests pillow albumentations
 ```
 
 ## Usage
@@ -45,10 +45,7 @@ python main.py
 
 ## Tests
 
-To check tests coverage run:
-'''
-python tests_main.py
-'''
+Tests are now automatic check github actions ar repository to check them.
 
 ## Dependencies
 
