@@ -5,6 +5,7 @@ import cv2
 import numpy as np
 import base64
 import logging
+import configparser
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(
@@ -78,10 +79,14 @@ def get_generated_image(prompt: str, negative_prompt: str, width=1024, height=10
     Returns:
         np.array: generated image
     """
+    config = configparser.ConfigParser()
+    config.read('config.ini')
+    print(config.get('Generation', 'API_KEY'),
+          config.get('Generation', 'SECRET_KEY'))
     api = Text2ImageAPI(
         "https://api-key.fusionbrain.ai/",
-        "2FF286FA8F9A4E2027023510F6D31E38",
-        "0F9B0DF9044B67F54EAAEB6CE8ABDAC9",
+        config.get('Generation', 'API_KEY'),
+        config.get('Generation', 'SECRET_KEY'),
     )
     model_id = api.get_model()
     uuid = api.generate(

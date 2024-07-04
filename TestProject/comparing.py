@@ -3,7 +3,15 @@ from image_posteffects import brightness, contrast, noise, saturation, random_cr
 from image_transformation import resize, cutout, flip, rotate, shift
 import numpy as np
 import datetime
+import logging
 
+logger = logging.getLogger(__name__)
+logging.basicConfig(
+    filename="compare.log",
+    encoding="utf-8",
+    level=logging.INFO,
+    format="%(asctime)s %(message)s",
+)
 
 def apply_all_transformations(image: np.array, width: int, height: int,
                               top_left: list, down_right: list, is_horizontal: int,
@@ -35,7 +43,7 @@ def apply_all_transformations(image: np.array, width: int, height: int,
     Returns:
         np.array: Transformed image
     """
-
+    logger.info('Started processing custom')
     # Apply cutout
     image = cutout(image, top_left, down_right)
 
@@ -65,7 +73,7 @@ def apply_all_transformations(image: np.array, width: int, height: int,
 
     # Apply random cropping
     image = random_crops(image, crop_width, crop_height)
-
+    logger.info('Finished processing custom')
     return image
 
 
@@ -107,7 +115,9 @@ def main_comprehansion():
         my_operations_time = datetime.datetime.now().microsecond - \
             before_my_operations.microsecond
         before_albumentations_operations = datetime.datetime.now()
+        logger.info('Started processing albumentations')
         augmented_image = transform(image=image)['image']
+        logger.info('Finished processing albumentations')
         albumentations_time = datetime.datetime.now().microsecond - \
             before_albumentations_operations.microsecond
         print('Size of an image:', image_size, 'X', image_size, '\n', 'My operations work time:',
