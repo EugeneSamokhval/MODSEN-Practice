@@ -45,10 +45,7 @@ python main.py
 
 ## Tests
 
-To check tests coverage run:
-'''
-python tests_main.py
-'''
+Tests are now automatic check github actions ar repository to check them.
 
 ## Dependencies
 
