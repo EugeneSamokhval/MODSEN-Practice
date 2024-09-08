@@ -94,7 +94,8 @@ class App(MDApp):
         self.image_generation_container.add_widget(ImageGenerationScreen())
         self.image_overlay_container.add_widget(ImageOverlayScreen())
         self.bottom_navigation_layout.add_widget(self.main_window_container)
-        self.bottom_navigation_layout.add_widget(self.image_generation_container)
+        self.bottom_navigation_layout.add_widget(
+            self.image_generation_container)
         self.bottom_navigation_layout.add_widget(self.image_overlay_container)
         self.bottom_navigation_layout.on_switch_tabs = self.switch_screens
         return self.bottom_navigation_layout
@@ -198,15 +199,18 @@ class ImageOverlayScreen(MDScreen):
         self.is_image_overlay.size = (50, 60)
         self.is_image_overlay.size_hint = (None, None)
         # Image overlay x position text field
-        self.image_x_pos = MDTextField(hint_text="x position", size_hint=(0.35, 0.1))
+        self.image_x_pos = MDTextField(
+            hint_text="x position", size_hint=(0.35, 0.1))
         # Image overlay y position text field
-        self.image_y_pos = MDTextField(hint_text="y position", size_hint=(0.35, 0.1))
+        self.image_y_pos = MDTextField(
+            hint_text="y position", size_hint=(0.35, 0.1))
         # Image overlay path opening button
         self.overlay_input_button = MDRectangleFlatButton()
         self.overlay_input_button.padding = 20
         self.overlay_input_button.size_hint = (0.1, 0.05)
         self.overlay_input_button.text = "Choose image to overlay"
-        self.overlay_input_button.on_press = lambda: self.file_manager_opener("Over")
+        self.overlay_input_button.on_press = lambda: self.file_manager_opener(
+            "Over")
         # Image overlay item
         image_overlay_item = transform_items_constructor(
             [
@@ -262,7 +266,8 @@ class ImageOverlayScreen(MDScreen):
         text_overlay_item = MDStackLayout(orientation="lr-tb")
         for widget in [
             self.is_text_overlay,
-            MDLabel(text="Text overlay", size=(100, 70), size_hint=(None, None)),
+            MDLabel(text="Text overlay", size=(
+                100, 70), size_hint=(None, None)),
             self.text_x_pos,
             self.text_y_pos,
             self.font_size_input_box,
@@ -440,7 +445,8 @@ class ImageOverlayScreen(MDScreen):
                     open_dialog_error("You need to choose image to overlay")
                     return False
             else:
-                open_dialog_error("X position and Y posisition fields weren't filled")
+                open_dialog_error(
+                    "X position and Y posisition fields weren't filled")
                 return False
         except:
             open_dialog_error("X position and Y posisition should be integer")
@@ -455,7 +461,8 @@ class ImageOverlayScreen(MDScreen):
             pass
         else:
             checks_completed = False
-            open_dialog_error("You need to choose input and output dirrectories")
+            open_dialog_error(
+                "You need to choose input and output dirrectories")
         if self.is_image_overlay.active:
             checks_completed = self.image_input_checks()
         if self.is_text_overlay.active:
@@ -470,11 +477,13 @@ class ImageOverlayScreen(MDScreen):
         try:
             resulting_images = list()
             if self.all_selected_checkbox.active:
-                loaded_images = images_collecting.load_images(self.images_load_path)
+                loaded_images = images_collecting.load_images(
+                    self.images_load_path)
             else:
                 loaded_images = [
                     [
-                        images_collecting.load_exact_image(self.current_image.source),
+                        images_collecting.load_exact_image(
+                            self.current_image.source),
                         self.current_image.source,
                     ]
                 ]
@@ -501,7 +510,8 @@ class ImageOverlayScreen(MDScreen):
             named_images_list = [
                 [image[0], image[1].split("\\")[-1]] for image in resulting_images
             ]
-            images_collecting.save_images(named_images_list, self.images_save_path)
+            images_collecting.save_images(
+                named_images_list, self.images_save_path)
             Clock.schedule_once(self.on_processing_finish)
         except:
             Clock.schedule_once(self.on_processing_finish_error)
@@ -527,7 +537,8 @@ class ImageOverlayScreen(MDScreen):
     def fill_dropdown_menu(self):
         """Fills dropown menu with fonts"""
         self.fonts_dropdown_menu.items = [
-            {"text": name, "on_release": lambda name=name: self.set_current_font(name)}
+            {"text": name,
+                "on_release": lambda name=name: self.set_current_font(name)}
             for name in images_overlay.load_fonts_names()
         ]
 
@@ -544,7 +555,8 @@ class ImageOverlayScreen(MDScreen):
             self.font_choise_button.text = name
             self.fonts_dropdown_menu.dismiss()
         except:
-            open_dialog_error("This font is no longer presented in fonts dirrectory")
+            open_dialog_error(
+                "This font is no longer presented in fonts dirrectory")
 
     def file_manager_opener(self, mode: str):
         """Opens file manager
@@ -716,10 +728,12 @@ class ImageGenerationScreen(MDScreen):
                     width_check = int(self.width_textfield.text)
                     height_check = int(self.width_textfield.text)
                     if (width_check > 1024) or (height_check > 1024):
-                        open_dialog_error("Image dimension must be lower than 1024")
+                        open_dialog_error(
+                            "Image dimension must be lower than 1024")
                         return None
                     elif (width_check < 0) or (height_check < 0):
-                        open_dialog_error("Image dimension must be higher than 0")
+                        open_dialog_error(
+                            "Image dimension must be higher than 0")
                         return None
                     self.start_button.disabled = True
                     process = Thread(target=self.generate_image)
@@ -745,7 +759,8 @@ class ImageGenerationScreen(MDScreen):
             while "ai_img_" + str(current_index) + ".png" in images_in_dir:
                 current_index += 1
             self.image_path = (
-                self.images_unload_path + "\\ai_img_" + str(current_index) + ".png"
+                self.images_unload_path + "\\ai_img_" +
+                str(current_index) + ".png"
             )
             if self.width_textfield and self.height_textfield:
                 image = image_generation.get_generated_image(
@@ -842,8 +857,10 @@ class MainScreen(MDScreen):
         )
         # cutout item
         self.checkboxes[check_list[1]] = [
-            MDTextField(hint_text="top left point [x, y]", size_hint=(0.35, 0.1)),
-            MDTextField(hint_text="bottom right point [x, y]", size_hint=(0.35, 0.1)),
+            MDTextField(
+                hint_text="top left point [x, y]", size_hint=(0.35, 0.1)),
+            MDTextField(
+                hint_text="bottom right point [x, y]", size_hint=(0.35, 0.1)),
         ]
         cutout_widget = transform_items_constructor(
             [
@@ -969,7 +986,8 @@ class MainScreen(MDScreen):
             pos_hint=(1, 1),
         )
         self.image_table.bind(on_check_press=self.on_check)
-        self.image_table.header.ids.check.bind(on_release=self.on_checkbox_active)
+        self.image_table.header.ids.check.bind(
+            on_release=self.on_checkbox_active)
         self.image_table.padding = 25
         # File manager definition and attributes
         self.manager_open = False
@@ -1031,7 +1049,8 @@ class MainScreen(MDScreen):
 
     def open_error(self, *args):
         self.start_button.disabled = False
-        open_dialog_error("Error during image processing please check the input.")
+        open_dialog_error(
+            "Error during image processing please check the input.")
 
     def on_checkbox_active(self, cb: MDCheckbox):
         """
@@ -1114,9 +1133,10 @@ class MainScreen(MDScreen):
             images_collecting.save_images(result, PATH=self.images_unload_path)
             Clock.schedule_once(self.open_dialog)
         except:
-            Clock.schedule_once()
-            open_dialog_error(
-                "Error while converting images. Check the entered data for correctness."
+            Clock.schedule_once(
+                open_dialog_error(
+                    "Error while converting images. Check the entered data for correctness."
+                )
             )
 
     def start_processing(self):
